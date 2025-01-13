@@ -507,63 +507,78 @@
             <div class="container">
                 <div class="page-inner">
                     <div class="page-header">
-                        <h3 class="fw-bold mb-3">Feedback</h3>
+                        <h3 class="fw-bold mb-3">Quản Lý Đơn Hàng</h3>
                         <ul class="breadcrumbs mb-3">
                             <li class="nav-home">
-                                <a href="#"><i class="icon-home"></i></a>
+                                <a href="#">
+                                    <i class="icon-home"></i>
+                                </a>
                             </li>
-                            <li class="separator"><i class="icon-arrow-right"></i></li>
-                            <li class="nav-item"><a href="#">Feedback</a></li>
-                            <li class="separator"><i class="icon-arrow-right"></i></li>
-                            <li class="nav-item"><a href="#">Quản Lý Feedback</a></li>
+                            <li class="separator">
+                                <i class="icon-arrow-right"></i>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#">Orders</a>
+                            </li>
+                            <li class="separator">
+                                <i class="icon-arrow-right"></i>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#">Quản lý đơn hàng</a>
+                            </li>
                         </ul>
                     </div>
                     <div class="container mt-5">
-                        <h2 class="text-center">Quản Lý Feedback</h2>
+                        <h2 class="text-center">Quản Lý Đơn Hàng</h2>
 
-                        <!-- Bộ lọc -->
-                        <div class="filters mb-4">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label for="priorityFilter">Lọc theo Độ ưu tiên:</label>
-                                    <select id="priorityFilter" class="form-control">
-                                        <option value="">Tất cả</option>
-                                        <option value="High">Cao</option>
-                                        <option value="Medium">Trung bình</option>
-                                        <option value="Low">Thấp</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="statusFilter">Lọc theo Trạng thái:</label>
-                                    <select id="statusFilter" class="form-control">
-                                        <option value="">Tất cả</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="In Progress">In Progress</option>
-                                        <option value="Resolved">Resolved</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Danh sách feedback -->
-                        <h3 class="mt-4">Danh sách Feedback</h3>
+                        <!-- Danh sách đơn hàng -->
+                        <h3 class="mt-4">Danh sách Đơn Hàng</h3>
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Tiêu đề</th>
-                                    <th>Loại</th>
-                                    <th>Độ ưu tiên</th>
-                                    <th>Nội dung</th>
+                                    <th>Người đặt</th>
+                                    <th>Tổng tiền</th>
                                     <th>Trạng thái</th>
-                                    <th>Hình ảnh</th>
+                                    <th>Ngày đặt</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody id="feedbackList"></tbody>
+                            <tbody id="orderList"></tbody>
                         </table>
                     </div>
+
+                    <!-- Chi tiết đơn hàng -->
+                    <div id="orderDetails" class="container mt-5" style="display: none;">
+                        <h3>Chi Tiết Đơn Hàng</h3>
+                        <div>
+                            <p><strong>Người đặt:</strong> <span id="orderUser"></span></p>
+                            <p><strong>Email:</strong> <span id="orderUserEmail"></span></p>
+                            <!-- <p><strong>Địa chỉ:</strong> <span id="orderAddress"></span></p> Address -->
+                            <!-- <p><strong>Số điện thoại:</strong> <span id="orderPhone"></span></p> Phone number -->
+                            <p><strong>Tổng tiền:</strong> <span id="orderTotal"></span></p>
+                            <p><strong>Trạng thái:</strong> <span id="orderStatus"></span></p>
+                            <p><strong>Ngày đặt:</strong> <span id="orderDate"></span></p>
+                        </div>
+                        <h4>Sản Phẩm</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Giá</th>
+                                    <th>Hình ảnh</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderProductList"></tbody>
+                        </table>
+                        <button class="btn btn-secondary" onclick="goBack()">Quay lại</button>
+                    </div>
+
                 </div>
             </div>
+
+
+
 
 
             <footer class="footer">
@@ -696,145 +711,149 @@
 
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="../assets/js/setting-demo2.js"></script>
+
+
     <script>
-        const apiUrl = 'http://localhost:3000/api/feedbacks'; // Replace with your actual API endpoint
+        const apiUrl = 'http://localhost:3000/api/orders/admin'; // Admin order API
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            document.getElementById('priorityFilter').addEventListener('change', loadFeedbackList);
-            document.getElementById('statusFilter').addEventListener('change', loadFeedbackList);
-            await loadFeedbackList();
-        });
-
-        async function loadFeedbackList() {
+        // Load all orders (admin)
+        async function loadOrders() {
             try {
-                const priorityFilter = document.getElementById('priorityFilter').value;
-                const statusFilter = document.getElementById('statusFilter').value;
-
                 const response = await fetch(apiUrl, {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                     },
                 });
 
                 if (response.ok) {
-                    let feedbacks = await response.json();
+                    const orders = await response.json();
+                    const orderList = document.getElementById('orderList');
+                    orderList.innerHTML = '';
 
-                    // Áp dụng bộ lọc
-                    if (priorityFilter) {
-                        feedbacks = feedbacks.filter(fb => fb.priority === priorityFilter);
-                    }
-                    if (statusFilter) {
-                        feedbacks = feedbacks.filter(fb => fb.status === statusFilter);
-                    }
-
-                    const feedbackList = document.getElementById('feedbackList');
-                    feedbackList.innerHTML = '';
-
-                    feedbacks.forEach(feedback => {
-                        let imagesHtml = 'Không có';
-
-                        if (feedback.images && feedback.images.length > 0) {
-                            imagesHtml = feedback.images.map(image =>
-                                `<img src="data:image/png;base64,${image}" alt="Feedback Image" style="width: 100px; height: auto; margin-right: 5px;" />`
-                            ).join('');
-                        }
-
-                        feedbackList.innerHTML += `
-                            <tr>
-                                <td>${feedback.title}</td>
-                                <td>${feedback.feedbackType}</td>
-                                <td>${feedback.priority}</td>
-                                <td>${feedback.content}</td>
-                                <td>${feedback.status}</td>
-                                <td>${imagesHtml}</td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm" onclick="viewFeedback('${feedback._id}')">Xem</button>
-                                    <button class="btn btn-success btn-sm" onclick="updateStatus('${feedback._id}', '${feedback.status}')">Cập nhật trạng thái</button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteFeedback('${feedback._id}')">Xoá</button>
-                                </td>
-                            </tr>
-                        `;
+                    orders.forEach(order => {
+                        orderList.innerHTML += `
+                    <tr>
+                        <td>${order.user.name}</td>
+                        <td>${order.totalAmount.toLocaleString()} VNĐ</td>
+                        <td>${order.status}</td>
+                        <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn btn-info btn-sm" onclick="viewOrderDetails('${order._id}')">Xem</button>
+                            ${order.status === 'ordered'
+                                ? `<button class="btn btn-success btn-sm" onclick="markAsDelivered('${order._id}')">Delivered</button>`
+                                : ''
+                            }
+                            <button class="btn btn-danger btn-sm" onclick="deleteOrder('${order._id}')">Xóa</button>
+                        </td>
+                    </tr>
+                `;
                     });
                 } else {
-                    console.error('Failed to fetch feedbacks:', await response.json());
+                    console.error('Lỗi khi tải danh sách đơn hàng:', await response.json());
                 }
             } catch (error) {
-                console.error('Error loading feedback list:', error);
+                console.error('Lỗi khi gọi API:', error);
             }
         }
 
-        async function updateStatus(feedbackId, currentStatus) {
-            let newStatus;
-
-            if (currentStatus === 'Pending') {
-                newStatus = 'In Progress';
-            } else if (currentStatus === 'In Progress') {
-                newStatus = 'Resolved';
-            } else {
-                alert('Trạng thái đã là Resolved và không thể cập nhật thêm.');
-                return;
-            }
-
+        // Mark order as delivered
+        async function markAsDelivered(orderId) {
             try {
-                const response = await fetch(`${apiUrl}/${feedbackId}`, {
+                const response = await fetch(`${apiUrl}/${orderId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                     },
-                    body: JSON.stringify({ status: newStatus }),
+                    body: JSON.stringify({ status: 'delivered' }),
                 });
 
                 if (response.ok) {
-                    alert(`Trạng thái đã được cập nhật thành ${newStatus}`);
-                    await loadFeedbackList();
+                    alert('Đơn hàng đã được cập nhật trạng thái thành delivered!');
+                    loadOrders();
                 } else {
-                    const error = await response.json();
-                    alert(`Lỗi: ${error.message}`);
+                    console.error('Lỗi khi cập nhật trạng thái đơn hàng:', await response.json());
                 }
             } catch (error) {
-                console.error('Error updating feedback status:', error);
+                console.error('Lỗi khi gọi API:', error);
             }
         }
 
-        async function deleteFeedback(feedbackId) {
-            if (!confirm('Bạn có chắc chắn muốn xoá feedback này?')) {
-                return;
-            }
-
+        // View order details
+        async function viewOrderDetails(orderId) {
             try {
-                const response = await fetch(`${apiUrl}/${feedbackId}`, {
-                    method: 'DELETE',
+                const response = await fetch(`${apiUrl}/${orderId}`, {
                     headers: {
-                        'Content-Type': 'application/json', // Đảm bảo format đúng
-                        Authorization: `Bearer ${localStorage.getItem('authToken')}`, // Gửi token xác thực nếu cần
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
                     },
                 });
 
                 if (response.ok) {
-                    alert('Feedback đã được xóa thành công.');
-                    await loadFeedbackList();
-                } else if (response.status === 404) {
-                    alert('Feedback không tồn tại.');
-                } else if (response.status === 403) {
-                    alert('Bạn không có quyền xóa feedback này.');
+                    const order = await response.json();
+                    console.log(order);
+
+                    document.getElementById('orderUser').textContent = order.user.name;
+                    document.getElementById('orderUserEmail').textContent = order.user.email;
+                    // document.getElementById('orderAddress').textContent = order.user.address || 'Chưa cập nhật'; // Address
+                    // document.getElementById('orderPhone').textContent = order.user.phoneNumber || 'Chưa cập nhật'; // Phone number
+                    document.getElementById('orderTotal').textContent = `${order.totalAmount.toLocaleString()} VNĐ`;
+                    document.getElementById('orderStatus').textContent = order.status;
+                    document.getElementById('orderDate').textContent = new Date(order.createdAt).toLocaleDateString();
+
+                    const orderProductList = document.getElementById('orderProductList');
+                    orderProductList.innerHTML = '';
+                    order.products.forEach(product => {
+                        orderProductList.innerHTML += `
+                    <tr>
+                        <td>${product.name}</td>
+                        <td>${product.quantity}</td>
+                        <td>${product.price.toLocaleString()} VNĐ</td>
+                        <td><img src="${product.image || '#'}" alt="Product Image" width="50"></td>
+                    </tr>
+                `;
+                    });
+
+                    document.getElementById('orderDetails').style.display = 'block';
                 } else {
-                    const error = await response.json();
-                    alert(`Lỗi: ${error.message}`);
+                    console.error('Lỗi khi tải chi tiết đơn hàng:', await response.json());
                 }
             } catch (error) {
-                console.error('Error deleting feedback:', error);
-                alert('Đã xảy ra lỗi khi kết nối với server.');
+                console.error('Lỗi khi gọi API:', error);
             }
         }
 
+        // Delete an order (admin)
+        async function deleteOrder(orderId) {
+            if (confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')) {
+                try {
+                    const response = await fetch(`${apiUrl}/${orderId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                        },
+                    });
 
-        function viewFeedback(feedbackId) {
-            alert(`Chi tiết feedback với ID: ${feedbackId}`);
-            // Thêm logic để hiển thị chi tiết feedback nếu cần
+                    if (response.ok) {
+                        alert('Đơn hàng đã được xóa thành công!');
+                        loadOrders();
+                    } else {
+                        console.error('Lỗi khi xóa đơn hàng:', await response.json());
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi gọi API:', error);
+                }
+            }
         }
-    </script>
 
+        // Go back to order list
+        function goBack() {
+            document.getElementById('orderDetails').style.display = 'none';
+        }
+
+        // Call loadOrders when the page loads
+        document.addEventListener('DOMContentLoaded', loadOrders);
+
+    </script>
 </body>
 
-</html>
+</html>s

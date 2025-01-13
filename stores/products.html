@@ -130,6 +130,11 @@
                                 <ul class="nav nav-collapse">
                                     <li>
                                         <a href="../invoices/invoices.html">
+                                            <span class="sub-item">Invoices</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="../invoices/invoices_form.html">
                                             <span class="sub-item">Invoices Form</span>
                                         </a>
                                     </li>
@@ -147,6 +152,27 @@
                                     <li>
                                         <a href="../feedback/feedback.html">
                                             <span class="sub-item">Feedback Form</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#orders">
+                                <i class="fas fa-th-list"></i>
+                                <p>Orders</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="orders">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a href="../orders/orders.html">
+                                            <span class="sub-item">Orders</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="../orders/order_detail.html">
+                                            <span class="sub-item">Order Detail</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -478,10 +504,11 @@
                 <!-- End Navbar -->
             </div>
 
+
             <div class="container">
                 <div class="page-inner">
                     <div class="page-header">
-                        <h3 class="fw-bold mb-3">Invoices</h3>
+                        <h3 class="fw-bold mb-3">Quản Lý Cửa Hàng</h3>
                         <ul class="breadcrumbs mb-3">
                             <li class="nav-home">
                                 <a href="#">
@@ -492,125 +519,90 @@
                                 <i class="icon-arrow-right"></i>
                             </li>
                             <li class="nav-item">
-                                <a href="#">Invoices</a>
+                                <a href="#">Stores</a>
                             </li>
                             <li class="separator">
                                 <i class="icon-arrow-right"></i>
                             </li>
                             <li class="nav-item">
-                                <a href="#">Quản lý hoá đơn</a>
+                                <a href="#">Chi tiết cửa hàng</a>
                             </li>
                         </ul>
                     </div>
                     <div class="container mt-5">
-                        <h2 class="text-center">Quản Lý Hóa Đơn</h2>
+                        <h1 class="text-center">Chi Tiết Cửa Hàng</h1>
 
-                        <!-- Form tạo mới hóa đơn -->
-                        <h3 class="mt-4">Tạo mới hóa đơn</h3>
-                        <form id="invoiceForm" class="mb-5">
-                            <div class="mb-3">
-                                <label for="title" class="form-label">Tiêu đề</label>
-                                <input type="text" class="form-control" id="title" required>
+                        <!-- Thông tin cửa hàng -->
+                        <div id="storeInfo" class="card mt-4">
+                            <div class="card-body">
+                                <h2 id="storeName"></h2>
+                                <p><strong>Địa chỉ:</strong> <span id="storeAddress"></span></p>
+                                <p><strong>Mô tả:</strong> <span id="storeDescription"></span></p>
+                                <img id="storeImage" alt="Store Image" class="img-fluid" />
                             </div>
-                            <div class="mb-3">
-                                <label for="time" class="form-label">Thời gian</label>
-                                <input type="date" class="form-control" id="time" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="status" class="form-label">Trạng thái</label>
-                                <select class="form-control" id="status" required>
-                                    <option value="Đã thanh toán">Đã thanh toán</option>
-                                    <option value="Chưa thanh toán">Chưa thanh toán</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="paymentDueDate" class="form-label">Ngày đến hạn</label>
-                                <input type="date" class="form-control" id="paymentDueDate" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="paymentPeriod" class="form-label">Kỳ thanh toán</label>
-                                <input type="text" class="form-control" id="paymentPeriod" required>
-                            </div>
+                        </div>
 
-                            <!-- Phí dịch vụ -->
-                            <h4>Phí dịch vụ</h4>
-                            <div class="mb-3">
-                                <label for="electricityUnits" class="form-label">Số điện (kWh)</label>
-                                <input type="number" class="form-control" id="electricityUnits"
-                                    placeholder="Nhập số điện" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="waterVolume" class="form-label">Số nước (m³)</label>
-                                <input type="number" class="form-control" id="waterVolume" placeholder="Nhập số nước"
-                                    required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="serviceFee" class="form-label">Phí dịch vụ chung cư (VNĐ)</label>
-                                <input type="number" class="form-control" id="serviceFee" placeholder="Nhập phí dịch vụ"
-                                    required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="vehicleCount" class="form-label">Số xe sử dụng</label>
-                                <input type="number" class="form-control" id="vehicleCount" placeholder="Nhập số xe"
-                                    required>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Lưu hóa đơn</button>
-                        </form>
-
-                        <!-- Danh sách hóa đơn -->
-                        <h3 class="mt-4">Danh sách hóa đơn</h3>
+                        <!-- Danh sách sản phẩm -->
+                        <h3 class="mt-4">Danh sách Sản Phẩm</h3>
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Tiêu đề</th>
-                                    <th>Thời gian</th>
-                                    <th>Trạng thái</th>
-                                    <th>Ngày đến hạn</th>
-                                    <th>Kỳ thanh toán</th>
-                                    <th>Tổng tiền</th>
-                                    <th>Thao tác</th>
+                                    <th>Ảnh</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Giá (VNĐ)</th>
+                                    <th>Tồn kho</th>
+                                    <th>Nhà sản xuất</th>
+                                    <th>Bảo hành</th>
+                                    <th>Hạn sử dụng</th>
+                                    <th>Hành động</th>
                                 </tr>
                             </thead>
-                            <tbody id="invoiceList"></tbody>
+                            <tbody id="productList"></tbody>
                         </table>
 
-                        <!-- Chi tiết hóa đơn -->
-                        <div class="mt-5" id="invoiceDetails" style="display: hid;">
-                            <h3>Chi tiết hóa đơn</h3>
-                            <div>
-                                <strong>Tiêu đề:</strong> <span id="invoiceTitle"></span><br>
-                                <strong>Thời gian:</strong> <span id="invoiceTime"></span><br>
-                                <strong>Trạng thái:</strong> <span id="invoiceStatus"></span><br>
-                                <strong>Ngày đến hạn:</strong> <span id="invoiceDueDate"></span><br>
-                                <strong>Kỳ thanh toán:</strong> <span id="invoicePeriod"></span><br>
-                                <strong>Tổng tiền:</strong> <span id="invoiceTotal"></span><br>
+                        <!-- Form tạo/cập nhật sản phẩm -->
+                        <h3 class="mt-4" id="productFormTitle">Thêm Sản Phẩm</h3>
+                        <form id="productForm" class="mb-5">
+                            <input type="hidden" id="productId">
+                            <div class="mb-3">
+                                <label for="productName" class="form-label">Tên sản phẩm</label>
+                                <input type="text" class="form-control" id="productName" required>
                             </div>
-
-                            <!-- Phí dịch vụ -->
-                            <h4 class="mt-3">Phí dịch vụ</h4>
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Tên</th>
-                                        <th>Chi tiết</th>
-                                        <th>Số tiền</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="serviceFeesList"></tbody>
-                            </table>
-
-                            <button class="btn btn-secondary" id="backToList">Quay lại danh sách</button>
-                            <button class="btn btn-danger" id="updateInvoice">Update hoá đơn</button>
-                            <button class="btn btn-danger" id="deleteInvoice">Xóa hóa đơn</button>
-                        </div>
+                            <div class="mb-3">
+                                <label for="productPrice" class="form-label">Giá (VNĐ)</label>
+                                <input type="number" class="form-control" id="productPrice" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productStock" class="form-label">Tồn kho</label>
+                                <input type="number" class="form-control" id="productStock" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productImage" class="form-label">URL Hình ảnh</label>
+                                <input type="url" class="form-control" id="productImage">
+                            </div>
+                            <div class="mb-3">
+                                <label for="productDescription" class="form-label">Mô tả</label>
+                                <textarea class="form-control" id="productDescription" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productManufacturer" class="form-label">Nhà sản xuất</label>
+                                <input type="text" class="form-control" id="productManufacturer">
+                            </div>
+                            <div class="mb-3">
+                                <label for="productWarranty" class="form-label">Bảo hành</label>
+                                <input type="text" class="form-control" id="productWarranty">
+                            </div>
+                            <div class="mb-3">
+                                <label for="productExpiry" class="form-label">Hạn sử dụng</label>
+                                <input type="date" class="form-control" id="productExpiry">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Lưu</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">Hủy</button>
+                        </form>
                     </div>
-
                 </div>
             </div>
+
 
             <footer class="footer">
                 <div class="container-fluid d-flex justify-content-between">
@@ -744,163 +736,186 @@
     <script src="../assets/js/setting-demo2.js"></script>
 
     <script>
-        const apiUrl = "http://localhost:3000/api/invoices/";
+        const apiUrlStore = 'http://localhost:3000/api/products/store';
 
-        const invoiceList = document.getElementById("invoiceList");
-        const invoiceDetails = document.getElementById("invoiceDetails");
-        const serviceFeesList = document.getElementById("serviceFeesList");
-        const backToList = document.getElementById("backToList");
-        const deleteInvoiceBtn = document.getElementById("deleteInvoice");
-        const updateInvoiceBtn = document.getElementById("updateInvoice");
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     // Lấy thông tin cửa hàng từ localStorage
+        //     const storeInfo = JSON.parse(localStorage.getItem('selectedStore'));
 
-        const invoiceTitle = document.getElementById("invoiceTitle");
-        const invoiceTime = document.getElementById("invoiceTime");
-        const invoiceStatus = document.getElementById("invoiceStatus");
-        const invoiceDueDate = document.getElementById("invoiceDueDate");
-        const invoicePeriod = document.getElementById("invoicePeriod");
-        const invoiceTotal = document.getElementById("invoiceTotal");
+        //     if (storeInfo) {
+        //         console.log('Loaded Store Info:', storeInfo); // Kiểm tra xem thông tin có được lấy đúng không
 
-        const invoiceForm = document.getElementById("invoiceForm");
+        //         // Hiển thị thông tin cửa hàng lên giao diện
+        //         document.getElementById('storeName').textContent = storeInfo.name;
+        //         document.getElementById('storeAddress').textContent = storeInfo.address;
+        //         document.getElementById('storeDescription').textContent = storeInfo.description;
+        //         document.getElementById('storeImage').src = storeInfo.image || '#';
 
-        let currentInvoiceId = null;
+        //         // Gọi hàm loadProducts với ID của store
+        //         loadProducts(storeInfo.id); // Truyền đúng ID của store
+        //     } else {
+        //         alert('Không tìm thấy thông tin cửa hàng!');
+        //         window.location.href = '/stores/stores.html'; // Chuyển hướng nếu không có thông tin
+        //     }
+        // });
 
-        // Lấy danh sách hóa đơn
-        const fetchInvoices = async () => {
-            const response = await fetch(apiUrl);
-            const invoices = await response.json();
-            displayInvoices(invoices);
-        };
 
-        // Hiển thị danh sách hóa đơn
-        const displayInvoices = (invoices) => {
-            invoiceList.innerHTML = "";
-            invoices.forEach((invoice) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${invoice.title}</td>
-                    <td>${new Date(invoice.time).toLocaleDateString()}</td>
-                    <td>${invoice.status}</td>
-                    <td>${new Date(invoice.paymentDueDate).toLocaleDateString()}</td>
-                    <td>${invoice.paymentPeriod}</td>
-                    <td>${invoice.totalAmount}</td>
-                    <td>
-                        <button class="btn btn-info btn-sm" onclick="viewDetails('${invoice._id}')">Xem</button>
-                    </td>
-                `;
-                invoiceList.appendChild(row);
-            });
-        };
+        async function loadProducts(storeId) {
 
-        // Hiển thị chi tiết hóa đơn
-        const viewDetails = async (id) => {
-            const response = await fetch(`${apiUrl}${id}`);
-            const invoice = await response.json();
-
-            invoiceTitle.textContent = invoice.title;
-            invoiceTime.textContent = new Date(invoice.time).toLocaleDateString();
-            invoiceStatus.textContent = invoice.status;
-            invoiceDueDate.textContent = new Date(invoice.paymentDueDate).toLocaleDateString();
-            invoicePeriod.textContent = invoice.paymentPeriod;
-            invoiceTotal.textContent = `${invoice.totalAmount} $`;
-
-            // Hiển thị danh sách phí dịch vụ
-            serviceFeesList.innerHTML = "";
-            invoice.serviceFees.forEach((fee) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${fee.name}</td>
-                    <td>${fee.details}</td>
-                    <td>${fee.amount} $</td>
-                `;
-                serviceFeesList.appendChild(row);
-            });
-
-            currentInvoiceId = id;
-            invoiceDetails.style.display = "block";
-            document.querySelector(".container").style.display = "hidden";
-        };
-
-        // Quay lại danh sách hóa đơn
-        backToList.addEventListener("click", () => {
-            invoiceDetails.style.display = "none";
-            document.querySelector(".container").style.display = "block";
-        });
-
-        // Xóa hóa đơn
-        deleteInvoiceBtn.addEventListener("click", async () => {
-            if (confirm("Bạn có chắc chắn muốn xóa hóa đơn này?")) {
-                await fetch(`${apiUrl}${currentInvoiceId}`, { method: "DELETE" });
-                fetchInvoices();
-                backToList.click();
+            if (!storeId) {
+                console.error('Store ID is empty!'); // Log lỗi nếu storeId rỗng
+                return;
             }
-        });
 
-
-        // Tạo mới hoặc cập nhật hóa đơn
-        invoiceForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            const title = document.getElementById("title").value;
-            const time = document.getElementById("time").value;
-            const status = document.getElementById("status").value;
-            const isPaid = status === "Đã thanh toán";
-            const paymentDueDate = document.getElementById("paymentDueDate").value;
-            const paymentPeriod = document.getElementById("paymentPeriod").value;
-
-            const electricityUnits = parseFloat(document.getElementById("electricityUnits").value);
-            const waterVolume = parseFloat(document.getElementById("waterVolume").value);
-            const serviceFee = parseFloat(document.getElementById("serviceFee").value);
-            const vehicleCount = parseFloat(document.getElementById("vehicleCount").value);
-
-            const serviceFees = [
-                {
-                    name: "Tiền điện",
-                    details: `Sử dụng ${electricityUnits} kWh`,
-                    amount: (electricityUnits * 0.1).toFixed(2),
-                },
-                {
-                    name: "Tiền nước",
-                    details: `Sử dụng ${waterVolume} m³`,
-                    amount: (waterVolume * 0.5).toFixed(2),
-                },
-                {
-                    name: "Dịch vụ chung cư",
-                    details: "Phí quản lý tháng",
-                    amount: serviceFee.toFixed(2),
-                },
-                {
-                    name: "Tiền gửi xe",
-                    details: `Sử dụng ${vehicleCount} xe`,
-                    amount: (vehicleCount * 5).toFixed(2),
-                },
-            ];
-
-            const invoiceData = { title, time, status, isPaid, paymentDueDate, paymentPeriod, serviceFees };
-
-            if (currentInvoiceId) {
-                // Cập nhật hóa đơn
-                await fetch(`${apiUrl}${currentInvoiceId}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(invoiceData),
+            console.log('Calling API with Store ID:', storeId); // Kiểm tra ID truyền vào
+            try {
+                const response = await fetch(`${apiUrlStore}/${storeId}`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
                 });
-                currentInvoiceId = null;
+
+                if (response.ok) {
+                    const products = await response.json();
+                    const productList = document.getElementById('productList');
+                    productList.innerHTML = '';
+
+                    products.forEach(product => {
+                        productList.innerHTML += `
+                    <tr>
+                        <td><img src="${product.imageUrl || '#'}" alt="Product Image" width="50"></td>
+                        <td>${product.name}</td>
+                        <td>${parseFloat(product.price).toLocaleString()} VNĐ</td>
+                        <td>${product.stock}</td>
+                        <td>${product.manufacturer || '-'}</td>
+                        <td>${product.warranty || '-'}</td>
+                        <td>${product.expiryDate || '-'}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="editProduct('${product._id}', '${product.name}', ${product.price}, ${product.stock}, '${product.imageUrl}', '${product.description}', '${product.manufacturer}', '${product.warranty}', '${product.expiryDate}')">
+                                Sửa
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product._id}')">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+                    });
+                } else {
+                    console.error('Lỗi khi tải danh sách sản phẩm:', await response.json());
+                }
+            } catch (error) {
+                console.error('Lỗi khi gọi API sản phẩm:', error);
+            }
+        }
+
+        // Lấy thông tin cửa hàng từ localStorage và hiển thị
+        document.addEventListener('DOMContentLoaded', () => {
+            const storeInfo = JSON.parse(localStorage.getItem('selectedStore'));
+
+            if (storeInfo) {
+                console.log('Loaded Store Info:', storeInfo);
+                document.getElementById('storeName').textContent = storeInfo.name;
+                document.getElementById('storeAddress').textContent = storeInfo.address;
+                document.getElementById('storeDescription').textContent = storeInfo.description;
+                document.getElementById('storeImage').src = storeInfo.image || '#';
+
+                // Tải danh sách sản phẩm
+                loadProducts(storeInfo._id); // Sử dụng _id
             } else {
-                // Tạo mới hóa đơn
-                await fetch(apiUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(invoiceData),
-                });
+                alert('Không tìm thấy thông tin cửa hàng!');
+                window.location.href = '/stores/stores.html'; // Quay lại danh sách cửa hàng nếu không có thông tin
             }
-
-            invoiceForm.reset();
-            fetchInvoices();
         });
 
-        // Lấy dữ liệu khi tải trang
-        document.addEventListener("DOMContentLoaded", fetchInvoices);
+        // Lưu sản phẩm mới hoặc cập nhật sản phẩm
+        document.getElementById('productForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const storeInfo = JSON.parse(localStorage.getItem('selectedStore'));
+            const storeId = storeInfo._id;
+
+            const productId = document.getElementById('productId').value;
+            const productData = {
+                name: document.getElementById('productName').value,
+                price: document.getElementById('productPrice').value,
+                stock: document.getElementById('productStock').value,
+                imageUrl: document.getElementById('productImage').value,
+                description: document.getElementById('productDescription').value,
+                manufacturer: document.getElementById('productManufacturer').value,
+                warranty: document.getElementById('productWarranty').value,
+                expiryDate: document.getElementById('productExpiry').value,
+            };
+
+            try {
+                if (productId) {
+                    // Cập nhật sản phẩm
+                    await fetch(`${apiUrlStore}/${storeId}/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                        },
+                        body: JSON.stringify(productData),
+                    });
+                    alert('Cập nhật sản phẩm thành công!');
+                } else {
+                    // Tạo sản phẩm mới
+                    await fetch(`${apiUrlStore}/${storeId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                        },
+                        body: JSON.stringify(productData),
+                    });
+                    alert('Tạo sản phẩm mới thành công!');
+                }
+
+                resetForm();
+                loadProducts(storeId);
+            } catch (error) {
+                console.error('Lỗi khi lưu sản phẩm:', error);
+            }
+        });
+
+        // Sửa sản phẩm
+        function editProduct(id, name, price, stock, imageUrl, description, manufacturer, warranty, expiryDate) {
+            document.getElementById('productId').value = id;
+            document.getElementById('productName').value = name;
+            document.getElementById('productPrice').value = price;
+            document.getElementById('productStock').value = stock;
+            document.getElementById('productImage').value = imageUrl;
+            document.getElementById('productDescription').value = description;
+            document.getElementById('productManufacturer').value = manufacturer;
+            document.getElementById('productWarranty').value = warranty;
+            document.getElementById('productExpiry').value = expiryDate;
+            document.getElementById('productFormTitle').textContent = 'Cập Nhật Sản Phẩm';
+        }
+
+        // Xóa sản phẩm
+        async function deleteProduct(productId) {
+            const storeInfo = JSON.parse(localStorage.getItem('selectedStore'));
+            const storeId = storeInfo._id;
+
+            if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+                try {
+                    await fetch(`${apiUrlStore}/${storeId}/${productId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
+                    });
+                    alert('Xóa sản phẩm thành công!');
+                    loadProducts(storeId);
+                } catch (error) {
+                    console.error('Lỗi khi xóa sản phẩm:', error);
+                }
+            }
+        }
+
+        // Đặt lại form
+        function resetForm() {
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('productFormTitle').textContent = 'Thêm Sản Phẩm';
+        }
+
     </script>
+
 </body>
 
 </html>

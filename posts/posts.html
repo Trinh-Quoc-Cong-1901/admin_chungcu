@@ -130,6 +130,11 @@
                                 <ul class="nav nav-collapse">
                                     <li>
                                         <a href="../invoices/invoices.html">
+                                            <span class="sub-item">Invoices</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="../invoices/invoices_form.html">
                                             <span class="sub-item">Invoices Form</span>
                                         </a>
                                     </li>
@@ -147,6 +152,27 @@
                                     <li>
                                         <a href="../feedback/feedback.html">
                                             <span class="sub-item">Feedback Form</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#orders">
+                                <i class="fas fa-th-list"></i>
+                                <p>Orders</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="orders">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a href="../orders/orders.html">
+                                            <span class="sub-item">Orders</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="../orders/order_detail.html">
+                                            <span class="sub-item">Order Detail</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -525,7 +551,7 @@
                                         <div class="form-group">
                                             <label for="imageUrl">Đường dẫn hình ảnh</label>
                                             <input type="text" class="form-control" id="imageUrl"
-                                                placeholder="Nhập URL hình ảnh" required />
+                                                placeholder="Nhập URL hình ảnh" />
                                         </div>
                                         <button type="submit" class="btn btn-success">Lưu</button>
                                         <button type="reset" class="btn btn-secondary">Hủy</button>
@@ -550,9 +576,9 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
+
 
             <footer class="footer">
                 <div class="container-fluid d-flex justify-content-between">
@@ -687,102 +713,135 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const fetchAllUrl = "http://localhost:3000/api/posts/allPost";
-            const postUrl = "http://localhost:3000/api/posts/675e70271dc5d535afa97160";
-            const postList = document.getElementById("postList");
-            const postForm = document.getElementById("postForm");
-            const titleInput = document.getElementById("title");
-            const contentInput = document.getElementById("content");
-            const imageUrlInput = document.getElementById("imageUrl");
+            loadPosts();
 
-            let editingPostId = null;
+            // Handle form submission for creating or updating a post
+            document.getElementById("postForm").addEventListener("submit", async (event) => {
+                event.preventDefault();
 
-            // Fetch all posts
-            const fetchPosts = async () => {
-                const response = await fetch(fetchAllUrl);
-                const posts = await response.json();
-                displayPosts(posts);
-            };
+                const postId = document.getElementById("postId").value;
+                const title = document.getElementById("title").value;
+                const content = document.getElementById("content").value;
+                const imageUrl = document.getElementById("imageUrl").value;
 
-            // Display posts
-            const displayPosts = (posts) => {
-                postList.innerHTML = "";
-                posts.forEach((post) => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-        <td>${post.title}</td>
-        <td>${post.author?.name || "Unknown"}</td>
-        <td>${new Date(post.createdAt).toLocaleDateString()}</td>
-        <td><img src="${post.images?.[0] || ""}" alt="Image" style="width: 50px; height: auto;"/></td>
-        <td>
-          <button class="btn btn-warning btn-sm edit-btn" data-id="${post._id}">Sửa</button>
-          <button class="btn btn-danger btn-sm delete-btn" data-id="${post._id}">Xóa</button>
-        </td>
-      `;
-                    postList.appendChild(row);
-                });
-
-                // Add event listeners for edit and delete buttons
-                document.querySelectorAll(".edit-btn").forEach((btn) =>
-                    btn.addEventListener("click", handleEditPost)
-                );
-                document.querySelectorAll(".delete-btn").forEach((btn) =>
-                    btn.addEventListener("click", handleDeletePost)
-                );
-            };
-
-            // Handle form submission (add or edit post)
-            postForm.addEventListener("submit", async (e) => {
-                e.preventDefault();
-                const title = titleInput.value;
-                const content = contentInput.value;
-                const imageUrl = imageUrlInput.value;
                 const postData = { title, content, images: [imageUrl] };
 
-                if (editingPostId) {
-                    // Update post
-                    await fetch(`${postUrl}/${editingPostId}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(postData),
-                    });
-                    editingPostId = null;
-                } else {
-                    // Add new post
-                    await fetch(postUrl, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(postData),
-                    });
+                try {
+                    if (postId) {
+                        // Update post
+                        await fetch(`http://localhost:3000/api/posts/${postId}`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                            },
+                            body: JSON.stringify(postData),
+                        });
+                        alert("Cập nhật bài viết thành công!");
+                    } else {
+                        // Create new post
+                        await fetch("http://localhost:3000/api/posts", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                            },
+                            body: JSON.stringify(postData),
+                        });
+                        alert("Tạo bài viết mới thành công!");
+                    }
+
+                    resetForm();
+                    loadPosts();
+                } catch (error) {
+                    console.error("Lỗi khi lưu bài viết:", error);
                 }
-
-                postForm.reset();
-                fetchPosts();
             });
-
-            // Handle editing a post
-            const handleEditPost = async (e) => {
-                const postId = e.target.dataset.id;
-                const response = await fetch(`${fetchAllUrl}/${postId}`);
-                const post = await response.json();
-
-                titleInput.value = post.title;
-                contentInput.value = post.content;
-                imageUrlInput.value = post.images?.[0] || "";
-
-                editingPostId = postId;
-            };
-
-            // Handle deleting a post
-            const handleDeletePost = async (e) => {
-                const postId = e.target.dataset.id;
-                await fetch(`${postUrl}/${postId}`, { method: "DELETE" });
-                fetchPosts();
-            };
-
-            // Fetch posts on page load
-            fetchPosts();
         });
+
+        // Load all posts
+        async function loadPosts() {
+            try {
+                const response = await fetch("http://localhost:3000/api/posts", {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+                });
+
+                if (response.ok) {
+                    const posts = await response.json();
+                    const postList = document.getElementById("postList");
+                    postList.innerHTML = "";
+
+                    posts.forEach((post) => {
+                        postList.innerHTML += `
+          <tr>
+            <td>${post.title}</td>
+            <td>${post.author?.name || "N/A"}</td>
+            <td>${new Date(post.createdAt).toLocaleDateString()}</td>
+            <td><img src="${post.images[0] || "#"}" alt="Post Image" width="50"></td>
+            <td>
+              <button class="btn btn-primary btn-sm" onclick="editPost('${post._id}', '${post.title}', '${post.content}', '${post.images[0]}')">Sửa</button>
+              <button class="btn btn-danger btn-sm" onclick="deletePost('${post._id}')">Xóa</button>
+              <button class="btn btn-info btn-sm" onclick="viewPost('${post._id}', '${post.title}', '${post.content}', '${post.images[0]}', '${post.author?.name || 'N/A'}', '${new Date(post.createdAt).toLocaleDateString()}')">Xem</button>
+            </td>
+          </tr>
+        `;
+                    });
+                } else {
+                    console.error("Lỗi khi tải danh sách bài viết:", await response.json());
+                }
+            } catch (error) {
+                console.error("Lỗi khi gọi API bài viết:", error);
+            }
+        }
+
+        // Edit a post
+        function editPost(id, title, content, imageUrl) {
+            document.getElementById("postId").value = id;
+            document.getElementById("title").value = title;
+            document.getElementById("content").value = content;
+            document.getElementById("imageUrl").value = imageUrl;
+            document.querySelector("#postForm .btn-success").textContent = "Cập Nhật";
+        }
+
+        // Delete a post
+        async function deletePost(postId) {
+            if (confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
+                try {
+                    await fetch(`http://localhost:3000/api/posts/${postId}`, {
+                        method: "DELETE",
+                        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+                    });
+                    alert("Xóa bài viết thành công!");
+                    loadPosts();
+                } catch (error) {
+                    console.error("Lỗi khi xóa bài viết:", error);
+                }
+            }
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById("postForm").reset();
+            document.getElementById("postId").value = "";
+            document.querySelector("#postForm .btn-success").textContent = "Lưu";
+        }
+
+        // View Post: Save post details in localStorage and navigate to the details page
+        function viewPost(postId, title, content, imageUrl, authorName, createdAt) {
+            const postInfo = {
+                _id: postId,
+                title,
+                content,
+                imageUrl,
+                authorName,
+                createdAt,
+            };
+
+            localStorage.setItem("selectedPost", JSON.stringify(postInfo));
+            console.log(postInfo);
+            // Redirect to detail_post.html
+            window.location.href = "/posts/detail_post.html";
+        }
 
     </script>
 </body>

@@ -130,6 +130,11 @@
                                 <ul class="nav nav-collapse">
                                     <li>
                                         <a href="../invoices/invoices.html">
+                                            <span class="sub-item">Invoices</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="../invoices/invoices_form.html">
                                             <span class="sub-item">Invoices Form</span>
                                         </a>
                                     </li>
@@ -147,6 +152,27 @@
                                     <li>
                                         <a href="../feedback/feedback.html">
                                             <span class="sub-item">Feedback Form</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#orders">
+                                <i class="fas fa-th-list"></i>
+                                <p>Orders</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="orders">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a href="../orders/orders.html">
+                                            <span class="sub-item">Orders</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="../orders/order_detail.html">
+                                            <span class="sub-item">Order Detail</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -481,7 +507,7 @@
             <div class="container">
                 <div class="page-inner">
                     <div class="page-header">
-                        <h3 class="fw-bold mb-3">Invoices</h3>
+                        <h3 class="fw-bold mb-3">Quản Lý Cửa Hàng</h3>
                         <ul class="breadcrumbs mb-3">
                             <li class="nav-home">
                                 <a href="#">
@@ -492,13 +518,13 @@
                                 <i class="icon-arrow-right"></i>
                             </li>
                             <li class="nav-item">
-                                <a href="#">Invoices</a>
+                                <a href="#">Stores</a>
                             </li>
                             <li class="separator">
                                 <i class="icon-arrow-right"></i>
                             </li>
                             <li class="nav-item">
-                                <a href="#">Quản lý hoá đơn</a>
+                                <a href="#">Quản lý cửa hàng</a>
                             </li>
                         </ul>
                     </div>
@@ -508,6 +534,7 @@
                         <!-- Form tạo hoặc cập nhật cửa hàng -->
                         <h3 class="mt-4">Tạo hoặc Cập nhật Cửa Hàng</h3>
                         <form id="storeForm" class="mb-5">
+                            <input type="hidden" id="storeId">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Tên cửa hàng</label>
                                 <input type="text" class="form-control" id="name" required>
@@ -518,15 +545,11 @@
                             </div>
                             <div class="mb-3">
                                 <label for="description" class="form-label">Mô tả</label>
-                                <textarea class="form-control" id="description" rows="4" required></textarea>
+                                <textarea class="form-control" id="description" rows="4"></textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="image" class="form-label">Hình ảnh (URL)</label>
                                 <input type="text" class="form-control" id="image">
-                            </div>
-                            <div class="mb-3">
-                                <label for="products" class="form-label">Sản phẩm (ID ngăn cách bằng dấu phẩy)</label>
-                                <input type="text" class="form-control" id="products">
                             </div>
                             <button type="submit" class="btn btn-primary">Lưu Cửa Hàng</button>
                         </form>
@@ -539,15 +562,16 @@
                                     <th>Tên</th>
                                     <th>Địa chỉ</th>
                                     <th>Mô tả</th>
+                                    <th>Hình ảnh</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="storeList"></tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
+
 
             <footer class="footer">
                 <div class="container-fluid d-flex justify-content-between">
@@ -682,94 +706,157 @@
 
 
     <script>
-        const apiUrl = "http://localhost:3000/api/stores/";
-        let currentStoreId = null;
+        const apiUrl = 'http://localhost:3000/api/stores';
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lấy thông tin cửa hàng từ localStorage
+            const storeInfo = JSON.parse(localStorage.getItem('selectedStore'));
 
-        const storeList = document.getElementById("storeList");
-        const storeForm = document.getElementById("storeForm");
+            if (storeInfo) {
+                console.log('Loaded Store Info:', storeInfo); // Kiểm tra xem thông tin có được lấy đúng không
 
-        // Lấy danh sách cửa hàng
-        const fetchStores = async () => {
-            const response = await fetch(apiUrl);
-            const stores = await response.json();
-            displayStores(stores);
-        };
+                // Hiển thị thông tin cửa hàng lên giao diện
+                document.getElementById('storeName').textContent = storeInfo.name;
+                document.getElementById('storeAddress').textContent = storeInfo.address;
+                document.getElementById('storeDescription').textContent = storeInfo.description;
+                document.getElementById('storeImage').src = storeInfo.image || '#';
 
-        // Hiển thị danh sách cửa hàng
-        const displayStores = (stores) => {
-            storeList.innerHTML = "";
-            stores.forEach((store) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                <td>${store.name}</td>
-                <td>${store.address}</td>
-                <td>${store.description}</td>
-                <td>
-                    <button class="btn btn-info btn-sm" onclick="loadStore('${store._id}')">Sửa</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteStore('${store._id}')">Xóa</button>
-                </td>
-            `;
-                storeList.appendChild(row);
-            });
-        };
-
-        // Load thông tin cửa hàng vào form để cập nhật
-        const loadStore = async (id) => {
-            currentStoreId = id;
-            const response = await fetch(`${apiUrl}${id}`);
-            const store = await response.json();
-
-            document.getElementById("name").value = store.name;
-            document.getElementById("address").value = store.address;
-            document.getElementById("description").value = store.description;
-            document.getElementById("image").value = store.image;
-            document.getElementById("products").value = store.products.join(", ");
-        };
-
-        // Xóa cửa hàng
-        const deleteStore = async (id) => {
-            if (confirm("Bạn có chắc chắn muốn xóa cửa hàng này?")) {
-                await fetch(`${apiUrl}${id}`, { method: "DELETE" });
-                fetchStores();
-            }
-        };
-
-        // Xử lý tạo mới hoặc cập nhật cửa hàng
-        storeForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            const name = document.getElementById("name").value;
-            const address = document.getElementById("address").value;
-            const description = document.getElementById("description").value;
-            const image = document.getElementById("image").value;
-            const products = document.getElementById("products").value.split(",").map(product => product.trim());
-
-            const storeData = { name, address, description, image, products };
-
-            if (currentStoreId) {
-                // Cập nhật cửa hàng
-                await fetch(`${apiUrl}${currentStoreId}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(storeData),
-                });
-                currentStoreId = null;
+                // Gọi hàm loadProducts với ID của store
+                loadProducts(storeInfo._id); // Truyền đúng ID của store
             } else {
-                // Tạo mới cửa hàng
-                await fetch(apiUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(storeData),
-                });
+                alert('Không tìm thấy thông tin cửa hàng!');
+                window.location.href = '/stores/stores.html'; // Chuyển hướng nếu không có thông tin
             }
-
-            storeForm.reset();
-            fetchStores();
         });
 
-        // Lấy dữ liệu khi tải trang
-        document.addEventListener("DOMContentLoaded", fetchStores);
+
+        // Tải danh sách cửa hàng
+        async function loadStores() {
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+                });
+                const stores = await response.json();
+                const storeList = document.getElementById('storeList');
+                storeList.innerHTML = '';
+
+                stores.forEach(store => {
+                    storeList.innerHTML += `
+                        <tr>
+                            <td>${store.name}</td>
+                            <td>${store.address}</td>
+                            <td>${store.description || ''}</td>
+                            <td><img src="${store.image || '#'}" alt="Store Image" width="50"></td>
+                            <td>
+                                <button class="btn btn-info btn-sm" onclick="viewProducts('${store._id}', '${store.name}', '${store.address}', '${store.description}', '${store.image}')">Xem sản phẩm</button>
+                                <button class="btn btn-primary btn-sm" onclick="editStore('${store._id}')">Sửa</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteStore('${store._id}')">Xóa</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error('Lỗi khi tải danh sách cửa hàng:', error);
+            }
+        }
+
+        // Tạo hoặc cập nhật cửa hàng
+        document.getElementById('storeForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const storeId = document.getElementById('storeId').value;
+            const name = document.getElementById('name').value;
+            const address = document.getElementById('address').value;
+            const description = document.getElementById('description').value;
+            const image = document.getElementById('image').value;
+
+            const storeData = { name, address, description, image };
+
+            try {
+                if (storeId) {
+                    // Cập nhật cửa hàng
+                    await fetch(`${apiUrl}/${storeId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        },
+                        body: JSON.stringify(storeData)
+                    });
+                    alert('Cập nhật cửa hàng thành công!');
+                } else {
+                    // Tạo cửa hàng mới
+                    await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        },
+                        body: JSON.stringify(storeData)
+                    });
+                    alert('Tạo cửa hàng mới thành công!');
+                }
+                document.getElementById('storeForm').reset();
+                loadStores();
+            } catch (error) {
+                console.error('Lỗi khi lưu cửa hàng:', error);
+            }
+        });
+
+        // Sửa cửa hàng
+        async function editStore(id) {
+            try {
+                const response = await fetch(`${apiUrl}/${id}`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+                });
+                const store = await response.json();
+                document.getElementById('storeId').value = store._id;
+                document.getElementById('name').value = store.name;
+                document.getElementById('address').value = store.address;
+                document.getElementById('description').value = store.description;
+                document.getElementById('image').value = store.image || '';
+            } catch (error) {
+                console.error('Lỗi khi tải thông tin cửa hàng:', error);
+            }
+        }
+
+        // Xóa cửa hàng
+        async function deleteStore(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa cửa hàng này?')) {
+                try {
+                    await fetch(`${apiUrl}/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+                    });
+                    alert('Xóa cửa hàng thành công!');
+                    loadStores();
+                } catch (error) {
+                    console.error('Lỗi khi xóa cửa hàng:', error);
+                }
+            }
+        }
+
+        function viewProducts(storeId, storeName, storeAddress, storeDescription, storeImage) {
+            // Lưu thông tin cửa hàng vào localStorage
+            const storeInfo = {
+                _id: storeId, // ID của cửa hàng
+                name: storeName, // Tên cửa hàng
+                address: storeAddress, // Địa chỉ cửa hàng
+                description: storeDescription, // Mô tả cửa hàng
+                image: storeImage // Hình ảnh cửa hàng
+            };
+
+            console.log('Store Info:', storeInfo); // Log để kiểm tra thông tin được lưu
+
+            localStorage.setItem('selectedStore', JSON.stringify(storeInfo));
+
+            // Chuyển hướng đến trang Products
+            window.location.href = '/stores/products.html';
+        }
+
+
+
+        // Tải danh sách cửa hàng khi trang được tải
+        document.addEventListener('DOMContentLoaded', loadStores);
     </script>
 </body>
 
-</html>
+</html>s

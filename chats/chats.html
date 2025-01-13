@@ -35,6 +35,119 @@
 
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link rel="stylesheet" href="../assets/css/demo.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      background-color: #f0f2f5;
+    }
+
+    .user-list {
+      width: 25%;
+      background: #fff;
+      border-right: 1px solid #ccc;
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    .user {
+      padding: 15px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s;
+    }
+
+    .user.active {
+      background-color: #e7f3ff;
+    }
+
+    .user:hover {
+      background-color: #f0f0f0;
+    }
+
+    .chat-window {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .message.user {
+      justify-content: flex-start;
+    }
+
+    .message.admin {
+      justify-content: flex-end;
+    }
+
+    .bubble {
+      max-width: 60%;
+      padding: 10px 15px;
+      border-radius: 20px;
+      line-height: 1.4;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .bubble.user {
+      background-color: #f0f0f0;
+    }
+
+    .bubble.admin {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .message-input {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+      background: #f9f9f9;
+    }
+
+    .message-input input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      outline: none;
+    }
+
+    .message-input button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .message-input button:hover {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 
 <body>
@@ -196,23 +309,6 @@
                       <span class="sub-item">Products Form</span>
                     </a>
                   </li>
-                </ul>
-              </div>
-            </li>
-            <li class="nav-item">
-              <a data-bs-toggle="collapse" href="#chats">
-                <i class="fas fa-th-list"></i>
-                <p>Chats</p>
-                <span class="caret"></span>
-              </a>
-              <div class="collapse" id="chats">
-                <ul class="nav nav-collapse">
-                  <li>
-                    <a href="../chats/chats.html">
-                      <span class="sub-item">Chats</span>
-                    </a>
-                  </li>
-
                 </ul>
               </div>
             </li>
@@ -520,119 +616,22 @@
           <div class="row">
             <div class="col-md-12">
               <!-- Danh Sách User -->
-              <div class="card">
-                <div class="card-header">
-                  <h4 class="card-title">Danh Sách User</h4>
-                  <input type="text" id="searchBox" class="form-control mb-3"
-                    placeholder="Tìm kiếm user theo tên, email, vai trò..." oninput="filterUsers()" />
+              <div class="user-list" id="userList">
+                <!-- User list will be populated here -->
+              </div>
+              <div class="chat-window">
+                <div class="messages" id="messages">
+                  <!-- Messages will be displayed here -->
                 </div>
-                <div class="card-body">
-                  <table class="table table-striped">
-                    <thead>
-                      <tr>
-                        <th>Tên</th>
-                        <th>Email</th>
-                        <th>Vai trò</th>
-                        <th>Tuổi</th>
-                        <th>Địa chỉ</th>
-                        <th>Số điện thoại</th>
-                        <th>Thao tác</th>
-                      </tr>
-                    </thead>
-                    <tbody id="userList"></tbody>
-                  </table>
+                <div class="message-input">
+                  <input type="text" id="messageInput" placeholder="Type a message...">
+                  <button onclick="sendMessage()">Send</button>
                 </div>
               </div>
 
-              <!-- Danh Sách Thành Viên -->
-              <div id="memberDetails" class="card mt-4 p-3" style="display: none;">
-                <h4 id="memberHeader"></h4>
-                <table class="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Tên</th>
-                      <th>Tuổi</th>
-                      <th>Quan hệ</th>
-                      <th>Thao tác</th>
-                    </tr>
-                  </thead>
-                  <tbody id="memberList"></tbody>
-                </table>
-                <button class="btn btn-success mt-3" onclick="showAddMemberForm()">Thêm Thành Viên</button>
-              </div>
 
-              <!-- Form Thêm/Sửa Thành Viên -->
-              <div id="memberFormSection" class="card mt-3" style="display: none;">
-                <div class="card-header">
-                  <h4 id="memberFormTitle">Thêm Thành Viên</h4>
-                </div>
-                <div class="card-body">
-                  <form id="memberForm">
-                    <input type="hidden" id="selectedUserId" />
-                    <input type="hidden" id="memberId" />
-                    <div class="form-group">
-                      <label for="memberName">Tên</label>
-                      <input type="text" class="form-control" id="memberName" placeholder="Nhập tên" required />
-                    </div>
-                    <div class="form-group">
-                      <label for="memberAge">Tuổi</label>
-                      <input type="number" class="form-control" id="memberAge" placeholder="Nhập tuổi" min="0"
-                        required />
-                    </div>
-                    <div class="form-group">
-                      <label for="memberRelation">Quan hệ</label>
-                      <input type="text" class="form-control" id="memberRelation" placeholder="Nhập quan hệ" required />
-                    </div>
-                    <button type="submit" class="btn btn-primary">Lưu</button>
-                    <button type="button" class="btn btn-secondary" onclick="hideMemberForm()">Hủy</button>
-                  </form>
-                </div>
-              </div>
+              <!-- Khu vực tin nhắn -->
 
-              <!-- Form Thêm/Sửa User -->
-              <div class="card mt-3">
-                <div class="card-header">
-                  <h4 class="card-title">Thêm / Sửa User</h4>
-                </div>
-                <div class="card-body">
-                  <form id="userForm">
-                    <input type="hidden" id="userId" />
-                    <div class="form-group">
-                      <label for="name">Tên</label>
-                      <input type="text" class="form-control" id="name" placeholder="Nhập tên" required />
-                    </div>
-                    <div class="form-group">
-                      <label for="email">Email</label>
-                      <input type="email" class="form-control" id="email" placeholder="Nhập email" required />
-                    </div>
-                    <div class="form-group">
-                      <label for="password">Mật khẩu</label>
-                      <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu" />
-                    </div>
-                    <div class="form-group">
-                      <label for="role">Vai trò</label>
-                      <select class="form-control" id="role" required>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label for="age">Tuổi</label>
-                      <input type="number" class="form-control" id="age" placeholder="Nhập tuổi" min="0" />
-                    </div>
-                    <div class="form-group">
-                      <label for="address">Địa chỉ</label>
-                      <input type="text" class="form-control" id="address" placeholder="Nhập địa chỉ" />
-                    </div>
-                    <div class="form-group">
-                      <label for="phoneNumber">Số điện thoại</label>
-                      <input type="text" class="form-control" id="phoneNumber" placeholder="Nhập số điện thoại" />
-                    </div>
-                    <button type="submit" class="btn btn-primary">Lưu</button>
-                    <button type="reset" class="btn btn-secondary" onclick="resetForm()">Hủy</button>
-                  </form>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -771,248 +770,89 @@
   <!-- Kaiadmin DEMO methods, don't include it in your project! -->
   <script src="../assets/js/setting-demo2.js"></script>
   <script>
-    const apiUrlMember = 'http://localhost:3000/api/members';
-    const apiUrl = 'http://localhost:3000/api/users';
+    let users = [];
+    let currentUser = null;
 
-
-
-    // Tải danh sách user
-    async function loadUsers() {
+    // Fetch users and messages
+    async function fetchUsers() {
       try {
-        const response = await fetch(apiUrl);
-        const users = await response.json();
-        const userList = document.getElementById('userList');
-        userList.innerHTML = '';
-
-        users.forEach((user) => {
-          userList.innerHTML += `
-        <tr>
-          <td>${user.name}</td>
-          <td>${user.email}</td>
-          <td>${user.role}</td>
-          <td>${user.age || ''}</td>
-          <td>${user.address || ''}</td>
-          <td>${user.phoneNumber || ''}</td>
-          <td>
-            <button class="btn btn-primary btn-sm" onclick="editUser('${user._id}')">Sửa</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteUser('${user._id}')">Xóa</button>
-            <button class="btn btn-info btn-sm" onclick="viewMembers('${user._id}', '${user.name}')">Xem thành viên</button>
-          </td>
-        </tr>
-      `;
-        });
+        const response = await fetch('http://localhost:3000/api/chats/admin/messages-by-user');
+        users = await response.json();
+        displayUsers();
       } catch (error) {
-        console.error('Lỗi khi tải danh sách user:', error);
+        console.error('Error fetching users:', error);
       }
     }
 
-    // Hiển thị danh sách thành viên
-    async function viewMembers(userId, userName) {
-      try {
-        const response = await fetch(`${apiUrlMember}/${userId}`);
-        const user = await response.json();
-        const memberDetails = document.getElementById('memberDetails');
-        const memberList = document.getElementById('memberList');
-        document.getElementById('selectedUserId').value = userId;
-
-        document.getElementById('memberHeader').textContent = `Danh sách thành viên của ${userName}`;
-        memberDetails.style.display = 'block';
-
-        if (user.members && user.members.length > 0) {
-          memberList.innerHTML = user.members
-            .map(
-              (member) => `
-        <tr>
-          <td>${member.name}</td>
-          <td>${member.age}</td>
-          <td>${member.relation}</td>
-          <td>
-            <button class="btn btn-primary btn-sm" onclick="editMember('${member._id}', '${member.name}', ${member.age}, '${member.relation}')">Sửa</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteMember('${userId}', '${member._id}')">Xóa</button>
-          </td>
-        </tr>
-      `
-            )
-            .join('');
-        } else {
-          memberList.innerHTML = `<tr><td colspan="4">Không có thành viên nào.</td></tr>`;
-        }
-      } catch (error) {
-        console.error('Lỗi khi tải danh sách thành viên:', error);
-      }
-    }
-
-    // Hiển thị form thêm thành viên
-    function showAddMemberForm() {
-      document.getElementById('memberFormSection').style.display = 'block';
-      document.getElementById('memberFormTitle').textContent = 'Thêm Thành Viên';
-      document.getElementById('memberForm').reset();
-      document.getElementById('memberId').value = '';
-    }
-
-    // Hiển thị form sửa thành viên
-    function editMember(memberId, name, age, relation) {
-      document.getElementById('memberFormSection').style.display = 'block';
-      document.getElementById('memberFormTitle').textContent = 'Sửa Thành Viên';
-      document.getElementById('memberId').value = memberId;
-      document.getElementById('memberName').value = name;
-      document.getElementById('memberAge').value = age;
-      document.getElementById('memberRelation').value = relation;
-    }
-
-    // Lưu thành viên
-    document.getElementById('memberForm').addEventListener('submit', async (event) => {
-      event.preventDefault();
-
-      const userId = document.getElementById('selectedUserId').value;
-      const memberId = document.getElementById('memberId').value;
-      const name = document.getElementById('memberName').value;
-      const age = document.getElementById('memberAge').value;
-      const relation = document.getElementById('memberRelation').value;
-
-      const url = memberId ? `${apiUrlMember}/${userId}/${memberId}` : `${apiUrlMember}/${userId}/${memberId}`;
-      const method = memberId ? 'PUT' : 'POST';
-
-      try {
-        await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, age, relation }),
-        });
-
-        alert(memberId ? 'Cập nhật thành viên thành công!' : 'Thêm thành viên thành công!');
-        hideMemberForm();
-        viewMembers(userId);
-      } catch (error) {
-        console.error('Lỗi khi thêm/cập nhật thành viên:', error);
-      }
-    });
-
-    // Xóa thành viên
-    async function deleteMember(userId, memberId) {
-      if (confirm('Bạn có chắc chắn muốn xóa thành viên này?')) {
-        try {
-          await fetch(`${apiUrlMember}/${userId}/${memberId}`, { method: 'DELETE' });
-          alert('Xóa thành viên thành công!');
-          viewMembers(userId);
-        } catch (error) {
-          console.error('Lỗi khi xóa thành viên:', error);
-        }
-      }
-    }
-
-    // Ẩn form thành viên
-    function hideMemberForm() {
-      document.getElementById('memberFormSection').style.display = 'none';
-    }
-
-    document.getElementById('userForm').addEventListener('submit', async (event) => {
-      event.preventDefault();
-
-      const userId = document.getElementById('userId').value; // Lấy ID của user (nếu có)
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value; // Không bắt buộc (chỉ cập nhật khi cần)
-      const role = document.getElementById('role').value;
-      const age = document.getElementById('age').value;
-      const address = document.getElementById('address').value;
-      const phoneNumber = document.getElementById('phoneNumber').value;
-
-      const userData = { name, email, role, age, address, phoneNumber };
-      if (password) userData.password = password; // Chỉ thêm trường password nếu người dùng nhập
-
-      try {
-        if (userId) {
-          // Cập nhật user
-          await fetch(`${apiUrl}/${userId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData),
-          });
-          alert('Cập nhật user thành công!');
-        } else {
-          // Tạo user mới
-          await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userData),
-          });
-          alert('Thêm user thành công!');
-        }
-
-        resetForm(); // Đặt lại form sau khi lưu
-        loadUsers(); // Tải lại danh sách user
-      } catch (error) {
-        console.error('Lỗi khi lưu user:', error);
-        alert('Không thể lưu thông tin user.');
-      }
-    });
-
-
-    // Sửa user
-    async function editUser(userId) {
-      try {
-        const response = await fetch(`${apiUrl}/${userId}`); // Lấy thông tin user từ API
-        const user = await response.json();
-
-        // Điền thông tin user vào form
-        document.getElementById('userId').value = user._id;
-        document.getElementById('name').value = user.name;
-        document.getElementById('email').value = user.email;
-        document.getElementById('role').value = user.role;
-        document.getElementById('age').value = user.age || '';
-        document.getElementById('address').value = user.address || '';
-        document.getElementById('phoneNumber').value = user.phoneNumber || '';
-
-        // Cuộn đến form để chỉnh sửa
-        document.getElementById('userForm').scrollIntoView({ behavior: 'smooth' });
-      } catch (error) {
-        console.error('Lỗi khi tải thông tin user:', error);
-        alert('Không thể tải thông tin user.');
-      }
-    }
-
-
-    // Xóa user
-    async function deleteUser(userId) {
-      if (confirm('Bạn có chắc chắn muốn xóa user này?')) {
-        try {
-          await fetch(`${apiUrl}/${userId}`, { method: 'DELETE' }); // Gửi yêu cầu xóa user
-          alert('Xóa user thành công!');
-          loadUsers(); // Tải lại danh sách user sau khi xóa
-        } catch (error) {
-          console.error('Lỗi khi xóa user:', error);
-          alert('Không thể xóa user.');
-        }
-      }
-    }
-
-
-    // Reset form
-    function resetForm() {
-      document.getElementById('userForm').reset(); // Đặt lại giá trị form
-      document.getElementById('userId').value = ''; // Xóa ID user
-    }
-
-
-    // Tìm kiếm user
-    function filterUsers() {
-      const query = document.getElementById('searchBox').value.toLowerCase();
-      const rows = document.querySelectorAll('#userList tr');
-      rows.forEach((row) => {
-        const cells = row.querySelectorAll('td');
-        const isMatch = Array.from(cells).some((cell) =>
-          cell.textContent.toLowerCase().includes(query)
-        );
-        row.style.display = isMatch ? '' : 'none';
+    function displayUsers() {
+      const userList = document.getElementById('userList');
+      userList.innerHTML = '';
+      users.forEach((user) => {
+        const userDiv = document.createElement('div');
+        userDiv.className = `user ${currentUser?.user._id === user.user._id ? 'active' : ''}`;
+        userDiv.textContent = user.user.name;
+        userDiv.onclick = () => selectUser(user);
+        userList.appendChild(userDiv);
       });
     }
 
-    // Gọi hàm load user khi trang được tải
-    loadUsers();
-    // Gọi hàm load user khi trang được tải
-    loadUsers();
+    function selectUser(user) {
+      currentUser = user;
+      displayUsers();
+      displayMessages();
+    }
 
+    function displayMessages() {
+      const messagesDiv = document.getElementById('messages');
+      messagesDiv.innerHTML = '';
+      if (!currentUser) return;
+
+      currentUser.messages.forEach((message) => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${message.sender.role}`;
+        const bubble = document.createElement('div');
+        bubble.className = `bubble ${message.sender.role}`;
+        bubble.textContent = message.message;
+        messageDiv.appendChild(bubble);
+        messagesDiv.appendChild(messageDiv);
+      });
+
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const message = input.value.trim();
+      if (!message || !currentUser) return;
+
+      const payload = {
+        receiverId: currentUser.user._id,
+        message,
+      };
+
+      try {
+        const response = await fetch('http://localhost:3000/api/chats', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          currentUser.messages.push({
+            sender: { role: 'admin' },
+            message,
+          });
+          displayMessages();
+          input.value = '';
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
+    }
+
+    fetchUsers();
   </script>
 
 </body>

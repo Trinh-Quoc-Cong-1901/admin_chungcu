@@ -34,6 +34,135 @@
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="../assets/css/demo.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #ddd;
+        }
+
+        .post-info {
+            flex-grow: 1;
+        }
+
+        .post-author {
+            font-weight: bold;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .post-date {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .post-title {
+            font-weight: bold;
+            font-size: 22px;
+            margin: 10px 0;
+        }
+
+        .post-content {
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .post-image {
+            width: 100%;
+            margin: 10px 0;
+            border-radius: 10px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .likes-comments {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .likes-comments svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .like-count,
+        .comment-count {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .comments-section {
+            margin-top: 20px;
+        }
+
+        .comment-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .comment-content {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .add-comment-form {
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #1877f2;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: #666;
+        }
+    </style>
 </head>
 
 <body>
@@ -505,65 +634,39 @@
             </div>
 
             <div class="container">
-                <div class="page-inner">
-                    <div class="page-header">
-                        <h3 class="fw-bold mb-3">Feedback</h3>
-                        <ul class="breadcrumbs mb-3">
-                            <li class="nav-home">
-                                <a href="#"><i class="icon-home"></i></a>
-                            </li>
-                            <li class="separator"><i class="icon-arrow-right"></i></li>
-                            <li class="nav-item"><a href="#">Feedback</a></li>
-                            <li class="separator"><i class="icon-arrow-right"></i></li>
-                            <li class="nav-item"><a href="#">Quản Lý Feedback</a></li>
-                        </ul>
-                    </div>
-                    <div class="container mt-5">
-                        <h2 class="text-center">Quản Lý Feedback</h2>
-
-                        <!-- Bộ lọc -->
-                        <div class="filters mb-4">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label for="priorityFilter">Lọc theo Độ ưu tiên:</label>
-                                    <select id="priorityFilter" class="form-control">
-                                        <option value="">Tất cả</option>
-                                        <option value="High">Cao</option>
-                                        <option value="Medium">Trung bình</option>
-                                        <option value="Low">Thấp</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="statusFilter">Lọc theo Trạng thái:</label>
-                                    <select id="statusFilter" class="form-control">
-                                        <option value="">Tất cả</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="In Progress">In Progress</option>
-                                        <option value="Resolved">Resolved</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Danh sách feedback -->
-                        <h3 class="mt-4">Danh sách Feedback</h3>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Tiêu đề</th>
-                                    <th>Loại</th>
-                                    <th>Độ ưu tiên</th>
-                                    <th>Nội dung</th>
-                                    <th>Trạng thái</th>
-                                    <th>Hình ảnh</th>
-                                    <th>Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody id="feedbackList"></tbody>
-                        </table>
+                <div class="post-header">
+                    <div class="avatar"></div>
+                    <div class="post-info">
+                        <p class="post-author" id="postAuthor"></p>
+                        <p class="post-date" id="postDate"></p>
                     </div>
                 </div>
+                <h1 class="post-title" id="postTitle"></h1>
+                <img id="postImage" class="post-image" alt="Post Image">
+                <p class="post-content" id="postContent"></p>
+                <div class="post-actions">
+                    <div class="likes-comments">
+
+                        <span class="like-count" id="likeCount"></span>
+                    </div>
+                    <div class="likes-comments">
+                        <span class="comment-count" id="commentCount"></span>
+                    </div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="comments-section">
+                    <h3>Bình Luận</h3>
+                    <div id="commentList"></div>
+                </div>
+
+                <!-- Add Comment -->
+                <div class="add-comment-form">
+                    <textarea id="commentContent" placeholder="Nhập nội dung bình luận" rows="3" required></textarea>
+                    <button id="addCommentBtn" class="btn">Gửi Bình Luận</button>
+                </div>
             </div>
+
 
 
             <footer class="footer">
@@ -696,145 +799,92 @@
 
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="../assets/js/setting-demo2.js"></script>
-    <script>
-        const apiUrl = 'http://localhost:3000/api/feedbacks'; // Replace with your actual API endpoint
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            document.getElementById('priorityFilter').addEventListener('change', loadFeedbackList);
-            document.getElementById('statusFilter').addEventListener('change', loadFeedbackList);
-            await loadFeedbackList();
+    <script>
+        // Base API URL
+        const apiBaseUrl = 'http://localhost:3000/api/posts/';
+
+        // Load post details using postId stored in localStorage
+        async function loadPostDetails() {
+            const postInfo = JSON.parse(localStorage.getItem("selectedPost"));
+            if (!postInfo) {
+                alert("Không tìm thấy thông tin bài viết!");
+                window.location.href = "/posts.html";
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}${postInfo._id}`, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const post = await response.json();
+                    renderPostDetails(post);
+                } else {
+                    console.error("Failed to fetch post details:", await response.json());
+                    alert("Không thể tải chi tiết bài viết");
+                }
+            } catch (error) {
+                console.error("Error fetching post details:", error);
+            }
+        }
+
+        // Render the post details in HTML
+        function renderPostDetails(post) {
+            document.getElementById("postAuthor").textContent = post.author.name;
+            document.getElementById("postDate").textContent = new Date(post.createdAt).toLocaleString();
+            document.getElementById("postTitle").textContent = post.title;
+            document.getElementById("postContent").textContent = post.content;
+            document.getElementById("postImage").src = post.images.length > 0 ? post.images[0] : "#";
+            document.getElementById("likeCount").textContent = `${post.likes.length} Likes`;
+            document.getElementById("commentCount").textContent = `${post.comments.length} Comments`;
+
+            const commentList = document.getElementById("commentList");
+            commentList.innerHTML = post.comments.map(comment => `
+            <div class="comment-item">
+              <p class="comment-author">${comment.user.name}</p>
+              <p class="comment-content">${comment.content}</p>
+            </div>
+          `).join("");
+        }
+
+        // Add a new comment
+        document.getElementById("addCommentBtn").addEventListener("click", async () => {
+            const postInfo = JSON.parse(localStorage.getItem("selectedPost"));
+            const content = document.getElementById("commentContent").value;
+
+            if (!content.trim()) {
+                alert("Nội dung bình luận không được để trống");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiBaseUrl}${postInfo._id}/comment`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+                    },
+                    body: JSON.stringify({ content }),
+                });
+
+                if (response.ok) {
+                    alert("Bình luận thành công!");
+                    loadPostDetails(); // Reload the post details
+                } else {
+                    console.error("Failed to add comment:", await response.json());
+                }
+            } catch (error) {
+                console.error("Error adding comment:", error);
+            }
         });
 
-        async function loadFeedbackList() {
-            try {
-                const priorityFilter = document.getElementById('priorityFilter').value;
-                const statusFilter = document.getElementById('statusFilter').value;
-
-                const response = await fetch(apiUrl, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-                    },
-                });
-
-                if (response.ok) {
-                    let feedbacks = await response.json();
-
-                    // Áp dụng bộ lọc
-                    if (priorityFilter) {
-                        feedbacks = feedbacks.filter(fb => fb.priority === priorityFilter);
-                    }
-                    if (statusFilter) {
-                        feedbacks = feedbacks.filter(fb => fb.status === statusFilter);
-                    }
-
-                    const feedbackList = document.getElementById('feedbackList');
-                    feedbackList.innerHTML = '';
-
-                    feedbacks.forEach(feedback => {
-                        let imagesHtml = 'Không có';
-
-                        if (feedback.images && feedback.images.length > 0) {
-                            imagesHtml = feedback.images.map(image =>
-                                `<img src="data:image/png;base64,${image}" alt="Feedback Image" style="width: 100px; height: auto; margin-right: 5px;" />`
-                            ).join('');
-                        }
-
-                        feedbackList.innerHTML += `
-                            <tr>
-                                <td>${feedback.title}</td>
-                                <td>${feedback.feedbackType}</td>
-                                <td>${feedback.priority}</td>
-                                <td>${feedback.content}</td>
-                                <td>${feedback.status}</td>
-                                <td>${imagesHtml}</td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm" onclick="viewFeedback('${feedback._id}')">Xem</button>
-                                    <button class="btn btn-success btn-sm" onclick="updateStatus('${feedback._id}', '${feedback.status}')">Cập nhật trạng thái</button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteFeedback('${feedback._id}')">Xoá</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    console.error('Failed to fetch feedbacks:', await response.json());
-                }
-            } catch (error) {
-                console.error('Error loading feedback list:', error);
-            }
-        }
-
-        async function updateStatus(feedbackId, currentStatus) {
-            let newStatus;
-
-            if (currentStatus === 'Pending') {
-                newStatus = 'In Progress';
-            } else if (currentStatus === 'In Progress') {
-                newStatus = 'Resolved';
-            } else {
-                alert('Trạng thái đã là Resolved và không thể cập nhật thêm.');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${apiUrl}/${feedbackId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-                    },
-                    body: JSON.stringify({ status: newStatus }),
-                });
-
-                if (response.ok) {
-                    alert(`Trạng thái đã được cập nhật thành ${newStatus}`);
-                    await loadFeedbackList();
-                } else {
-                    const error = await response.json();
-                    alert(`Lỗi: ${error.message}`);
-                }
-            } catch (error) {
-                console.error('Error updating feedback status:', error);
-            }
-        }
-
-        async function deleteFeedback(feedbackId) {
-            if (!confirm('Bạn có chắc chắn muốn xoá feedback này?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`${apiUrl}/${feedbackId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json', // Đảm bảo format đúng
-                        Authorization: `Bearer ${localStorage.getItem('authToken')}`, // Gửi token xác thực nếu cần
-                    },
-                });
-
-                if (response.ok) {
-                    alert('Feedback đã được xóa thành công.');
-                    await loadFeedbackList();
-                } else if (response.status === 404) {
-                    alert('Feedback không tồn tại.');
-                } else if (response.status === 403) {
-                    alert('Bạn không có quyền xóa feedback này.');
-                } else {
-                    const error = await response.json();
-                    alert(`Lỗi: ${error.message}`);
-                }
-            } catch (error) {
-                console.error('Error deleting feedback:', error);
-                alert('Đã xảy ra lỗi khi kết nối với server.');
-            }
-        }
-
-
-        function viewFeedback(feedbackId) {
-            alert(`Chi tiết feedback với ID: ${feedbackId}`);
-            // Thêm logic để hiển thị chi tiết feedback nếu cần
-        }
+        // Load post details on page load
+        loadPostDetails();
     </script>
-
 </body>
 
 </html>

@@ -507,63 +507,59 @@
             <div class="container">
                 <div class="page-inner">
                     <div class="page-header">
-                        <h3 class="fw-bold mb-3">Feedback</h3>
+                        <h3 class="fw-bold mb-3">Tạo Hóa Đơn</h3>
                         <ul class="breadcrumbs mb-3">
                             <li class="nav-home">
                                 <a href="#"><i class="icon-home"></i></a>
                             </li>
                             <li class="separator"><i class="icon-arrow-right"></i></li>
-                            <li class="nav-item"><a href="#">Feedback</a></li>
+                            <li class="nav-item"><a href="#">Invoices</a></li>
                             <li class="separator"><i class="icon-arrow-right"></i></li>
-                            <li class="nav-item"><a href="#">Quản Lý Feedback</a></li>
+                            <li class="nav-item"><a href="#">Tạo hóa đơn</a></li>
                         </ul>
                     </div>
                     <div class="container mt-5">
-                        <h2 class="text-center">Quản Lý Feedback</h2>
-
-                        <!-- Bộ lọc -->
-                        <div class="filters mb-4">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label for="priorityFilter">Lọc theo Độ ưu tiên:</label>
-                                    <select id="priorityFilter" class="form-control">
-                                        <option value="">Tất cả</option>
-                                        <option value="High">Cao</option>
-                                        <option value="Medium">Trung bình</option>
-                                        <option value="Low">Thấp</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="statusFilter">Lọc theo Trạng thái:</label>
-                                    <select id="statusFilter" class="form-control">
-                                        <option value="">Tất cả</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="In Progress">In Progress</option>
-                                        <option value="Resolved">Resolved</option>
-                                    </select>
+                        <h2 class="text-center">Tạo Mới Hóa Đơn</h2>
+                        <form id="invoiceForm" class="mb-5">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Tiêu đề</label>
+                                <input type="text" class="form-control" id="title" placeholder="Hóa đơn tháng 12/2025"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Trạng thái</label>
+                                <select class="form-control" id="status" required>
+                                    <option value="Chưa thanh toán">Chưa thanh toán</option>
+                                    <option value="Đã thanh toán">Đã thanh toán</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="paymentDueDate" class="form-label">Ngày đến hạn</label>
+                                <input type="date" class="form-control" id="paymentDueDate" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="userId" class="form-label">ID Người Dùng</label>
+                                <input type="text" class="form-control" id="userId" placeholder="Nhập ID người dùng"
+                                    required>
+                            </div>
+                            <h4>Phí Dịch Vụ</h4>
+                            <div id="serviceFees">
+                                <div class="serviceFee mb-3">
+                                    <input type="text" class="form-control mb-2" placeholder="Tên dịch vụ" required>
+                                    <input type="text" class="form-control mb-2" placeholder="Chi tiết dịch vụ"
+                                        required>
+                                    <input type="number" class="form-control" placeholder="Số tiền (VNĐ)" required>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Danh sách feedback -->
-                        <h3 class="mt-4">Danh sách Feedback</h3>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Tiêu đề</th>
-                                    <th>Loại</th>
-                                    <th>Độ ưu tiên</th>
-                                    <th>Nội dung</th>
-                                    <th>Trạng thái</th>
-                                    <th>Hình ảnh</th>
-                                    <th>Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody id="feedbackList"></tbody>
-                        </table>
+                            <button type="button" class="btn btn-secondary mb-3" onclick="addServiceFee()">Thêm Dịch
+                                Vụ</button>
+                            <button type="submit" class="btn btn-primary">Tạo Hóa Đơn</button>
+                        </form>
                     </div>
                 </div>
             </div>
+
+
 
 
             <footer class="footer">
@@ -696,145 +692,78 @@
 
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="../assets/js/setting-demo2.js"></script>
-    <script>
-        const apiUrl = 'http://localhost:3000/api/feedbacks'; // Replace with your actual API endpoint
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            document.getElementById('priorityFilter').addEventListener('change', loadFeedbackList);
-            document.getElementById('statusFilter').addEventListener('change', loadFeedbackList);
-            await loadFeedbackList();
+    <script>
+        const apiUrl = 'http://localhost:3000/api/invoices/admin'; // API endpoint for creating invoices
+
+        document.getElementById('invoiceForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            // Collect form data
+            const title = document.getElementById('title').value;
+            const status = document.getElementById('status').value;
+            const paymentDueDate = document.getElementById('paymentDueDate').value;
+            const userId = document.getElementById('userId').value;
+
+            // Collect service fees
+            const serviceFeesElements = document.querySelectorAll('#serviceFees .serviceFee');
+            const serviceFees = Array.from(serviceFeesElements).map((feeElement) => ({
+                name: feeElement.children[0].value,
+                details: feeElement.children[1].value,
+                amount: feeElement.children[2].value,
+            }));
+
+            // Prepare invoice data
+            const invoiceData = {
+                title,
+                status,
+                paymentDueDate,
+                serviceFees,
+                user: userId,
+            };
+
+            try {
+                // Send invoice data to the API
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+                    body: JSON.stringify(invoiceData),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Hóa đơn đã được tạo thành công!');
+                    document.getElementById('invoiceForm').reset();
+                    document.getElementById('serviceFees').innerHTML = ''; // Reset service fee inputs
+                    addServiceFee(); // Add initial empty service fee inputs
+                } else {
+                    const error = await response.json();
+                    alert(`Lỗi: ${error.message}`);
+                }
+            } catch (error) {
+                console.error('Lỗi khi tạo hóa đơn:', error);
+                alert('Có lỗi xảy ra, vui lòng thử lại sau!');
+            }
         });
 
-        async function loadFeedbackList() {
-            try {
-                const priorityFilter = document.getElementById('priorityFilter').value;
-                const statusFilter = document.getElementById('statusFilter').value;
-
-                const response = await fetch(apiUrl, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-                    },
-                });
-
-                if (response.ok) {
-                    let feedbacks = await response.json();
-
-                    // Áp dụng bộ lọc
-                    if (priorityFilter) {
-                        feedbacks = feedbacks.filter(fb => fb.priority === priorityFilter);
-                    }
-                    if (statusFilter) {
-                        feedbacks = feedbacks.filter(fb => fb.status === statusFilter);
-                    }
-
-                    const feedbackList = document.getElementById('feedbackList');
-                    feedbackList.innerHTML = '';
-
-                    feedbacks.forEach(feedback => {
-                        let imagesHtml = 'Không có';
-
-                        if (feedback.images && feedback.images.length > 0) {
-                            imagesHtml = feedback.images.map(image =>
-                                `<img src="data:image/png;base64,${image}" alt="Feedback Image" style="width: 100px; height: auto; margin-right: 5px;" />`
-                            ).join('');
-                        }
-
-                        feedbackList.innerHTML += `
-                            <tr>
-                                <td>${feedback.title}</td>
-                                <td>${feedback.feedbackType}</td>
-                                <td>${feedback.priority}</td>
-                                <td>${feedback.content}</td>
-                                <td>${feedback.status}</td>
-                                <td>${imagesHtml}</td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm" onclick="viewFeedback('${feedback._id}')">Xem</button>
-                                    <button class="btn btn-success btn-sm" onclick="updateStatus('${feedback._id}', '${feedback.status}')">Cập nhật trạng thái</button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteFeedback('${feedback._id}')">Xoá</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    console.error('Failed to fetch feedbacks:', await response.json());
-                }
-            } catch (error) {
-                console.error('Error loading feedback list:', error);
-            }
+        // Function to add a new service fee row
+        function addServiceFee() {
+            const serviceFees = document.getElementById('serviceFees');
+            const feeRow = document.createElement('div');
+            feeRow.className = 'serviceFee mb-3';
+            feeRow.innerHTML = `
+        <input type="text" class="form-control mb-2" placeholder="Tên dịch vụ" required>
+        <input type="text" class="form-control mb-2" placeholder="Chi tiết dịch vụ" required>
+        <input type="number" class="form-control" placeholder="Số tiền (VNĐ)" required>
+    `;
+            serviceFees.appendChild(feeRow);
         }
 
-        async function updateStatus(feedbackId, currentStatus) {
-            let newStatus;
+        // Add the first service fee row by default
+        addServiceFee();
 
-            if (currentStatus === 'Pending') {
-                newStatus = 'In Progress';
-            } else if (currentStatus === 'In Progress') {
-                newStatus = 'Resolved';
-            } else {
-                alert('Trạng thái đã là Resolved và không thể cập nhật thêm.');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${apiUrl}/${feedbackId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-                    },
-                    body: JSON.stringify({ status: newStatus }),
-                });
-
-                if (response.ok) {
-                    alert(`Trạng thái đã được cập nhật thành ${newStatus}`);
-                    await loadFeedbackList();
-                } else {
-                    const error = await response.json();
-                    alert(`Lỗi: ${error.message}`);
-                }
-            } catch (error) {
-                console.error('Error updating feedback status:', error);
-            }
-        }
-
-        async function deleteFeedback(feedbackId) {
-            if (!confirm('Bạn có chắc chắn muốn xoá feedback này?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`${apiUrl}/${feedbackId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json', // Đảm bảo format đúng
-                        Authorization: `Bearer ${localStorage.getItem('authToken')}`, // Gửi token xác thực nếu cần
-                    },
-                });
-
-                if (response.ok) {
-                    alert('Feedback đã được xóa thành công.');
-                    await loadFeedbackList();
-                } else if (response.status === 404) {
-                    alert('Feedback không tồn tại.');
-                } else if (response.status === 403) {
-                    alert('Bạn không có quyền xóa feedback này.');
-                } else {
-                    const error = await response.json();
-                    alert(`Lỗi: ${error.message}`);
-                }
-            } catch (error) {
-                console.error('Error deleting feedback:', error);
-                alert('Đã xảy ra lỗi khi kết nối với server.');
-            }
-        }
-
-
-        function viewFeedback(feedbackId) {
-            alert(`Chi tiết feedback với ID: ${feedbackId}`);
-            // Thêm logic để hiển thị chi tiết feedback nếu cần
-        }
     </script>
-
 </body>
+
 
 </html>

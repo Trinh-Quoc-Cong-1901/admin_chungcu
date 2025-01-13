@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
   <style>
-    /* CSS */
     body {
       font-family: Arial, sans-serif;
       background: #f5f5f5;
@@ -88,17 +87,15 @@
     </form>
     <div id="message" class="message"></div>
   </div>
+
   <script>
-    // JavaScript
     document.getElementById('loginForm').addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      // Lấy email và password từ form
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
       try {
-        // Gửi request đến API
         const response = await fetch('http://localhost:3000/api/token/login', {
           method: 'POST',
           headers: {
@@ -107,21 +104,29 @@
           body: JSON.stringify({ email, password }),
         });
 
-        // Kiểm tra phản hồi từ API
         if (response.ok) {
           const data = await response.json();
-          localStorage.setItem('authToken', data.token); // Lưu token vào localStorage
-          alert('Login successful!');
-          window.location.href = '/index.html'; // Chuyển hướng đến trang dashboard
+
+          // Lưu trữ các giá trị nhận được từ API
+          localStorage.setItem('authToken', data.accessToken); // Lưu Access Token
+          localStorage.setItem('refreshToken', data.refreshToken); // Lưu Refresh Token
+          localStorage.setItem('userId', data.user.id); // Lưu ID người dùng
+          localStorage.setItem('userName', data.user.name); // Lưu tên người dùng
+          localStorage.setItem('userEmail', data.user.email); // Lưu email người dùng
+          localStorage.setItem('userRole', data.user.role); // Lưu vai trò (admin/user)
+
+          alert('Đăng nhập thành công!');
+          window.location.href = '/index.html'; // Chuyển hướng sau khi đăng nhập
         } else {
           const error = await response.json();
-          document.getElementById('message').textContent = error.message || 'Login failed';
+          document.getElementById('message').textContent = error.message || 'Đăng nhập thất bại!';
         }
       } catch (err) {
-        document.getElementById('message').textContent = 'An error occurred. Please try again.';
-        console.error(err);
+        document.getElementById('message').textContent = 'Có lỗi xảy ra. Vui lòng thử lại.';
+        console.error('Lỗi:', err);
       }
     });
+
   </script>
 </body>
 
