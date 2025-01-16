@@ -556,6 +556,7 @@
                                     <th>Nội dung</th>
                                     <th>Trạng thái</th>
                                     <th>Hình ảnh</th>
+                                    <th>Phân công</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
@@ -697,7 +698,8 @@
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="../assets/js/setting-demo2.js"></script>
     <script>
-        const apiUrl = 'http://localhost:3000/api/feedbacks'; // Replace with your actual API endpoint
+        const apiUrl = 'http://localhost:3000/api/feedbacks'; // API feedback
+        const employeesApiUrl = 'http://localhost:3000/api/technical-staff'; // API danh sách nhân viên
 
         document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('priorityFilter').addEventListener('change', loadFeedbackList);
@@ -747,9 +749,9 @@
                                 <td>${feedback.content}</td>
                                 <td>${feedback.status}</td>
                                 <td>${imagesHtml}</td>
+                                <td>${feedback.assignedTo ? feedback.assignedTo.name : 'Chưa phân công'}</td>
                                 <td>
-                                    <button class="btn btn-primary btn-sm" onclick="viewFeedback('${feedback._id}')">Xem</button>
-                                    <button class="btn btn-success btn-sm" onclick="updateStatus('${feedback._id}', '${feedback.status}')">Cập nhật trạng thái</button>
+                                    <button class="btn btn-success btn-sm" onclick="assignEmployee('${feedback._id}')">Phân công</button>
                                     <button class="btn btn-danger btn-sm" onclick="deleteFeedback('${feedback._id}')">Xoá</button>
                                 </td>
                             </tr>
@@ -763,37 +765,97 @@
             }
         }
 
-        async function updateStatus(feedbackId, currentStatus) {
-            let newStatus;
-
-            if (currentStatus === 'Pending') {
-                newStatus = 'In Progress';
-            } else if (currentStatus === 'In Progress') {
-                newStatus = 'Resolved';
-            } else {
-                alert('Trạng thái đã là Resolved và không thể cập nhật thêm.');
-                return;
-            }
-
+        async function assignEmployee(feedbackId) {
             try {
-                const response = await fetch(`${apiUrl}/${feedbackId}`, {
+                const response = await fetch(employeesApiUrl, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const employeesData = await response.json();
+                    const employees = employeesData.data || []; // Lấy danh sách nhân viên từ trường 'employees'
+
+                    if (!Array.isArray(employees)) {
+                        alert('Dữ liệu nhân viên không hợp lệ.');
+                        console.error('Employees is not an array:', employees);
+                        return;
+                    }
+
+                    // Tạo bảng danh sách nhân viên trong modal
+                    const modal = document.createElement('div');
+                    modal.style.position = 'fixed';
+                    modal.style.top = '50%';
+                    modal.style.left = '50%';
+                    modal.style.transform = 'translate(-50%, -50%)';
+                    modal.style.backgroundColor = 'white';
+                    modal.style.padding = '20px';
+                    modal.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+                    modal.style.zIndex = '1000';
+
+                    const modalContent = `
+                        <h3>Danh sách nhân viên</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Tên</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Số căn cước</th>
+                                    <th>Kỹ năng</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${employees.map(employee => `
+                                    <tr>
+                                        <td>${employee.name}</td>
+                                        <td>${employee.phoneNumber}</td>
+                                        <td>${employee.identityCard}</td>
+                                        <td>${employee.skills.join(', ')}</td>
+                                        <td><button class="btn btn-primary btn-sm" onclick="assignToFeedback('${feedbackId}', '${employee._id}')">Thêm</button></td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <button id="closeModal" class="btn btn-secondary">Thoát</button>
+                    `;
+
+                    modal.innerHTML = modalContent;
+                    document.body.appendChild(modal);
+
+                    // Nút thoát
+                    document.getElementById('closeModal').addEventListener('click', () => {
+                        document.body.removeChild(modal);
+                    });
+                } else {
+                    alert('Không thể lấy danh sách nhân viên.');
+                }
+            } catch (error) {
+                console.error('Error assigning employee:', error);
+            }
+        }
+
+        async function assignToFeedback(feedbackId, employeeId) {
+            try {
+                const assignResponse = await fetch(`${apiUrl}/${feedbackId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${localStorage.getItem('authToken')}`,
                     },
-                    body: JSON.stringify({ status: newStatus }),
+                    body: JSON.stringify({ assignedTo: employeeId, status: 'In Progress' }),
                 });
 
-                if (response.ok) {
-                    alert(`Trạng thái đã được cập nhật thành ${newStatus}`);
+                if (assignResponse.ok) {
+                    alert('Đã phân công thành công!');
+                    document.body.removeChild(document.querySelector('div[style*="z-index: 1000"]'));
                     await loadFeedbackList();
                 } else {
-                    const error = await response.json();
-                    alert(`Lỗi: ${error.message}`);
+                    alert('Phân công thất bại.');
                 }
             } catch (error) {
-                console.error('Error updating feedback status:', error);
+                console.error('Error assigning to feedback:', error);
             }
         }
 
@@ -806,34 +868,28 @@
                 const response = await fetch(`${apiUrl}/${feedbackId}`, {
                     method: 'DELETE',
                     headers: {
-                        'Content-Type': 'application/json', // Đảm bảo format đúng
-                        Authorization: `Bearer ${localStorage.getItem('authToken')}`, // Gửi token xác thực nếu cần
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
                     },
                 });
 
                 if (response.ok) {
                     alert('Feedback đã được xóa thành công.');
                     await loadFeedbackList();
-                } else if (response.status === 404) {
-                    alert('Feedback không tồn tại.');
-                } else if (response.status === 403) {
-                    alert('Bạn không có quyền xóa feedback này.');
                 } else {
-                    const error = await response.json();
-                    alert(`Lỗi: ${error.message}`);
+                    alert('Xoá feedback thất bại.');
                 }
             } catch (error) {
                 console.error('Error deleting feedback:', error);
-                alert('Đã xảy ra lỗi khi kết nối với server.');
             }
         }
-
-
-        function viewFeedback(feedbackId) {
-            alert(`Chi tiết feedback với ID: ${feedbackId}`);
-            // Thêm logic để hiển thị chi tiết feedback nếu cần
-        }
     </script>
+
+
+
+
+
+
 
 </body>
 

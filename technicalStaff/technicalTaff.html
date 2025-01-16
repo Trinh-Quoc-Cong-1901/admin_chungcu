@@ -507,7 +507,7 @@
             <div class="container">
                 <div class="page-inner">
                     <div class="page-header">
-                        <h3 class="fw-bold mb-3">Quản Lý Đơn Hàng</h3>
+                        <h3 class="fw-bold mb-3">Quản Lý Nhân Viên Kỹ Thuật</h3>
                         <ul class="breadcrumbs mb-3">
                             <li class="nav-home">
                                 <a href="#">
@@ -518,67 +518,61 @@
                                 <i class="icon-arrow-right"></i>
                             </li>
                             <li class="nav-item">
-                                <a href="#">Orders</a>
+                                <a href="#">Technical Staff</a>
                             </li>
                             <li class="separator">
                                 <i class="icon-arrow-right"></i>
                             </li>
                             <li class="nav-item">
-                                <a href="#">Quản lý đơn hàng</a>
+                                <a href="#">Quản lý nhân viên kỹ thuật</a>
                             </li>
                         </ul>
                     </div>
-                    <div class="container mt-5">
-                        <h2 class="text-center">Quản Lý Đơn Hàng</h2>
 
-                        <!-- Danh sách đơn hàng -->
-                        <h3 class="mt-4">Danh sách Đơn Hàng</h3>
+                    <div class="container mt-5">
+                        <h2 class="text-center">Quản Lý Nhân Viên Kỹ Thuật</h2>
+
+                        <!-- Form tạo hoặc cập nhật nhân viên -->
+                        <h3 class="mt-4">Tạo hoặc Cập nhật Nhân Viên</h3>
+                        <form id="staffForm" class="mb-5">
+                            <input type="hidden" id="staffId">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Tên nhân viên</label>
+                                <input type="text" class="form-control" id="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="phoneNumber" class="form-label">Số điện thoại</label>
+                                <input type="text" class="form-control" id="phoneNumber" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="identityCard" class="form-label">Số căn cước công dân</label>
+                                <input type="text" class="form-control" id="identityCard" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="skills" class="form-label">Kỹ năng</label>
+                                <input type="text" class="form-control" id="skills"
+                                    placeholder="Nhập các kỹ năng, cách nhau bởi dấu phẩy" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Lưu Nhân Viên</button>
+                        </form>
+
+                        <!-- Danh sách nhân viên -->
+                        <h3 class="mt-4">Danh sách Nhân Viên</h3>
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>Người đặt</th>
-                                    <th>Tổng tiền</th>
-                                    <th>Trạng thái</th>
-                                    <th>Ngày đặt</th>
+                                    <th>Tên</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Số căn cước</th>
+                                    <th>Kỹ năng</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody id="orderList"></tbody>
+                            <tbody id="staffList"></tbody>
                         </table>
                     </div>
-
-                    <!-- Chi tiết đơn hàng -->
-                    <div id="orderDetails" class="container mt-5" style="display: none;">
-                        <h3>Chi Tiết Đơn Hàng</h3>
-                        <div>
-                            <p><strong>Người đặt:</strong> <span id="orderUser"></span></p>
-                            <p><strong>Email:</strong> <span id="orderUserEmail"></span></p>
-                            <!-- <p><strong>Địa chỉ:</strong> <span id="orderAddress"></span></p> Address -->
-                            <!-- <p><strong>Số điện thoại:</strong> <span id="orderPhone"></span></p> Phone number -->
-                            <p><strong>Tổng tiền:</strong> <span id="orderTotal"></span></p>
-                            <p><strong>Trạng thái:</strong> <span id="orderStatus"></span></p>
-                            <p><strong>Ngày đặt:</strong> <span id="orderDate"></span></p>
-                        </div>
-                        <h4>Sản Phẩm</h4>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Tên sản phẩm</th>
-                                    <th>Số lượng</th>
-                                    <th>Giá</th>
-                                    <th>Hình ảnh</th>
-                                </tr>
-                            </thead>
-                            <tbody id="orderProductList"></tbody>
-                        </table>
-                        <button class="btn btn-secondary" onclick="goBack()">Quay lại</button>
-                    </div>
-
                 </div>
             </div>
-
-
-
 
 
             <footer class="footer">
@@ -714,146 +708,150 @@
 
 
     <script>
-        const apiUrl = 'http://localhost:3000/api/orders/admin'; // Admin order API
+        const API_URL = 'http://localhost:3000/api/technical-staff';
 
-        // Load all orders (admin)
-        async function loadOrders() {
+        // Lấy danh sách nhân viên kỹ thuật
+        async function fetchStaff() {
             try {
-                const response = await fetch(apiUrl, {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    alert('Bạn chưa đăng nhập hoặc token không tồn tại!');
+                    return;
+                }
+
+                const response = await fetch(API_URL, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-                    },
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
                 if (response.ok) {
-                    const orders = await response.json();
-                    const orderList = document.getElementById('orderList');
-                    orderList.innerHTML = '';
-
-                    orders.forEach(order => {
-                        orderList.innerHTML += `
-                    <tr>
-                        <td>${order.user.name}</td>
-                        <td>${order.totalAmount.toLocaleString()} VNĐ</td>
-                        <td>${order.status}</td>
-                        <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                        <td>
-                            <button class="btn btn-info btn-sm" onclick="viewOrderDetails('${order._id}')">Xem</button>
-                            ${order.status === 'ordered'
-                                ? `<button class="btn btn-success btn-sm" onclick="markAsShipping('${order._id}')">shipping</button>`
-                                : ''
-                            }
-                            <button class="btn btn-danger btn-sm" onclick="deleteOrder('${order._id}')">Xóa</button>
-                        </td>
-                    </tr>
-                `;
-                    });
+                    const { data } = await response.json();
+                    const staffList = document.getElementById('staffList');
+                    staffList.innerHTML = data.map(staff => `
+                        <tr>
+                            <td>${staff.name}</td>
+                            <td>${staff.phoneNumber}</td>
+                            <td>${staff.identityCard}</td>
+                            <td>${staff.skills.join(', ')}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editStaff('${staff._id}')">Sửa</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteStaff('${staff._id}')">Xóa</button>
+                            </td>
+                        </tr>
+                    `).join('');
                 } else {
-                    console.error('Lỗi khi tải danh sách đơn hàng:', await response.json());
+                    console.error('Không thể tải danh sách nhân viên:', await response.json());
                 }
             } catch (error) {
                 console.error('Lỗi khi gọi API:', error);
             }
         }
 
-        // Mark order as shipping
-        async function markAsShipping(orderId) {
+        // Tạo hoặc cập nhật nhân viên kỹ thuật
+        async function saveStaff(event) {
+            event.preventDefault();
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('Bạn chưa đăng nhập hoặc token không tồn tại!');
+                return;
+            }
+
+            const staffId = document.getElementById('staffId').value;
+            const name = document.getElementById('name').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const identityCard = document.getElementById('identityCard').value;
+            const skills = document.getElementById('skills').value.split(',').map(skill => skill.trim());
+
+            const method = staffId ? 'PUT' : 'POST';
+            const url = staffId ? `${API_URL}/${staffId}` : API_URL;
+
             try {
-                const response = await fetch(`${apiUrl}/${orderId}`, {
-                    method: 'PUT',
+                const response = await fetch(url, {
+                    method,
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                        'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ status: 'shipping' }),
+                    body: JSON.stringify({ name, phoneNumber, identityCard, skills })
                 });
 
                 if (response.ok) {
-                    alert('Đơn hàng đã được cập nhật trạng thái thành shipping!');
-                    loadOrders();
+                    alert(staffId ? 'Cập nhật thành công' : 'Tạo mới thành công');
+                    document.getElementById('staffForm').reset();
+                    fetchStaff();
                 } else {
-                    console.error('Lỗi khi cập nhật trạng thái đơn hàng:', await response.json());
+                    console.error('Lỗi khi lưu nhân viên:', await response.json());
                 }
             } catch (error) {
                 console.error('Lỗi khi gọi API:', error);
             }
         }
 
-        // View order details
-        async function viewOrderDetails(orderId) {
+        // Xóa nhân viên kỹ thuật
+        async function deleteStaff(staffId) {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('Bạn chưa đăng nhập hoặc token không tồn tại!');
+                return;
+            }
+
+            if (!confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) return;
+
             try {
-                const response = await fetch(`${apiUrl}/${orderId}`, {
+                const response = await fetch(`${API_URL}/${staffId}`, {
+                    method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-                    },
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
                 if (response.ok) {
-                    const order = await response.json();
-                    console.log(order);
-
-                    document.getElementById('orderUser').textContent = order.user.name;
-                    document.getElementById('orderUserEmail').textContent = order.user.email;
-                    // document.getElementById('orderAddress').textContent = order.user.address || 'Chưa cập nhật'; // Address
-                    // document.getElementById('orderPhone').textContent = order.user.phoneNumber || 'Chưa cập nhật'; // Phone number
-                    document.getElementById('orderTotal').textContent = `${order.totalAmount.toLocaleString()} VNĐ`;
-                    document.getElementById('orderStatus').textContent = order.status;
-                    document.getElementById('orderDate').textContent = new Date(order.createdAt).toLocaleDateString();
-
-                    const orderProductList = document.getElementById('orderProductList');
-                    orderProductList.innerHTML = '';
-                    order.products.forEach(product => {
-                        orderProductList.innerHTML += `
-                    <tr>
-                        <td>${product.name}</td>
-                        <td>${product.quantity}</td>
-                        <td>${product.price.toLocaleString()} VNĐ</td>
-                        <td><img src="${product.image || '#'}" alt="Product Image" width="50"></td>
-                    </tr>
-                `;
-                    });
-
-                    document.getElementById('orderDetails').style.display = 'block';
+                    alert('Xóa nhân viên thành công');
+                    fetchStaff();
                 } else {
-                    console.error('Lỗi khi tải chi tiết đơn hàng:', await response.json());
+                    console.error('Lỗi khi xóa nhân viên:', await response.json());
                 }
             } catch (error) {
                 console.error('Lỗi khi gọi API:', error);
             }
         }
 
-        // Delete an order (admin)
-        async function deleteOrder(orderId) {
-            if (confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')) {
-                try {
-                    const response = await fetch(`${apiUrl}/${orderId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-                        },
-                    });
+        // Chỉnh sửa nhân viên kỹ thuật
+        async function editStaff(staffId) {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('Bạn chưa đăng nhập hoặc token không tồn tại!');
+                return;
+            }
 
-                    if (response.ok) {
-                        alert('Đơn hàng đã được xóa thành công!');
-                        loadOrders();
-                    } else {
-                        console.error('Lỗi khi xóa đơn hàng:', await response.json());
+            try {
+                const response = await fetch(`${API_URL}/${staffId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
                     }
-                } catch (error) {
-                    console.error('Lỗi khi gọi API:', error);
+                });
+
+                if (response.ok) {
+                    const { data } = await response.json();
+
+                    document.getElementById('staffId').value = data._id;
+                    document.getElementById('name').value = data.name;
+                    document.getElementById('phoneNumber').value = data.phoneNumber;
+                    document.getElementById('identityCard').value = data.identityCard;
+                    document.getElementById('skills').value = data.skills.join(', ');
+                } else {
+                    console.error('Không thể tải thông tin nhân viên:', await response.json());
                 }
+            } catch (error) {
+                console.error('Lỗi khi gọi API:', error);
             }
         }
 
-        // Go back to order list
-        function goBack() {
-            document.getElementById('orderDetails').style.display = 'none';
-        }
-
-        // Call loadOrders when the page loads
-        document.addEventListener('DOMContentLoaded', loadOrders);
-
+        document.getElementById('staffForm').addEventListener('submit', saveStaff);
+        fetchStaff();
     </script>
+
 </body>
 
 </html>s
